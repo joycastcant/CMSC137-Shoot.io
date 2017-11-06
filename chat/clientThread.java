@@ -21,7 +21,6 @@ public class clientThread extends Thread {
 
   public void run() {
     ArrayList<clientThread> threads = this.threads;
-
     try {
       is = new DataInputStream(clientSocket.getInputStream());
       os = new DataOutputStream(clientSocket.getOutputStream());
@@ -36,9 +35,10 @@ public class clientThread extends Thread {
       }
       while (true) {
         String line = is.readUTF();
-        if (line.split(": ")[1].equals("/quit")) {
+        if (line.split(": ").length < 2){	
+        	continue;
+        } else if (line.split(": ")[1].equals("/quit")) {
           break;
-
         } else {
           synchronized (this) {
             for (int i = 0; i < threads.size(); i++) {
@@ -56,6 +56,7 @@ public class clientThread extends Thread {
           }
         }
       }
+      
       os.writeUTF("You have been disconnected");
 
       synchronized (this) {

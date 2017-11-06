@@ -25,6 +25,7 @@ public class MultiThreadChatClient implements Runnable {
         System.out.println("Usage: java Client <server ip> <port no.> <your name>");
     }
 
+    //Initialization
     try {
       clientSocket = new Socket(host, portNumber);
       inputLine = new BufferedReader(new InputStreamReader(System.in));
@@ -39,10 +40,9 @@ public class MultiThreadChatClient implements Runnable {
 
     if (clientSocket != null && os != null && is != null) {
       try {
-
         new Thread(new MultiThreadChatClient()).start();
         while (!closed) {
-          os.writeUTF(name + ": " + inputLine.readLine().trim());
+          os.writeUTF(name + ": " + inputLine.readLine());
         }
         os.close();
         is.close();

@@ -25,6 +25,7 @@ public class ShooterIO implements ActionListener {
   // Back buttons
   JButton backButton1 = getButton("Back");
   JButton backButton2 = getButton("Back");
+  // JButton backButton3 = getButton("Back");
 
   Font font;
 
@@ -79,10 +80,16 @@ public class ShooterIO implements ActionListener {
 
     this.highScores.add(this.backButton2);
     this.highScores.add(hsLabel);
+
+    Container container = new Container();
+    HighScore hScores = new HighScore("../data/hscores.txt", container);
+    this.highScores.add(hScores);
+
     this.instructions.add(this.backButton1);
 
     // Game component
     this.game = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0);
+    // this.game.add(this.backButton3);
 
     // Main frame components
     this.mainComponents.setLayout(new CardLayout());
@@ -153,7 +160,7 @@ public class ShooterIO implements ActionListener {
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.INSTRUCTIONSPANEL);
     if( e.getSource() == this.highScoresButton )
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.HIGHSCORESPANEL);
-    if( e.getSource() == this.backButton1 || e.getSource() == this.backButton2)
+    if( e.getSource() == this.backButton1 || e.getSource() == this.backButton2)// || e.getSource() == this.backButton3)
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.HOMEPANEL);
     if( e.getSource() == this.exitButton )
       this.mainFrame.dispose();

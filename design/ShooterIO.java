@@ -5,6 +5,7 @@ import java.io.*;
 
 public class ShooterIO implements ActionListener {
 
+  MultiThreadChatClient client;
   // Containers
   JFrame mainFrame      = new JFrame("Shooter.io");
   JPanel mainComponents = new JPanel(new CardLayout());
@@ -168,8 +169,12 @@ public class ShooterIO implements ActionListener {
   /* ActionListener */
   @Override
   public void actionPerformed(ActionEvent e) {
-    if( e.getSource() == this.playButton )
+    if( e.getSource() == this.playButton ){
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.GAMEPANEL);
+      client = new MultiThreadChatClient("127.0.0.1", "2222", "PlayerName HEHE");
+      Thread asd = new Thread(client);
+      asd.start();
+    }
     if( e.getSource() == this.instructionsButton )
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.INSTRUCTIONSPANEL);
     if( e.getSource() == this.highScoresButton )

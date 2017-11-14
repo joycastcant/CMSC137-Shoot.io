@@ -29,6 +29,8 @@ public class Chat extends JPanel {
         JTextField inputMsg = new JTextField(23);
         inputMsg.setEditable(true);
         inputMsg.setFocusable(true);
+        inputMsg.setEnabled(true);
+        inputMsg.setText("asdasd");
         inputField.add(inputMsg);
 
         this.add(inputField, BorderLayout.SOUTH);

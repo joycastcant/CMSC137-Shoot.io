@@ -68,28 +68,42 @@ public class ShooterIO implements ActionListener {
     this.mainButtons.add(this.instructionsButton);
     this.mainButtons.add(this.highScoresButton);
     this.mainButtons.add(this.exitButton);
-
+    
     this.home.setLayout(new GridBagLayout());
     this.home.add(this.mainButtons);
-
+    
     // Instructions/highScores components
     title = new ImageIcon("images/hs.png");
     JLabel hsLabel = new JLabel();
     hsLabel.setIcon(title);
     hsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+    
     this.highScores.add(this.backButton2);
     this.highScores.add(hsLabel);
-
+    
     Container container = new Container();
     HighScore hScores = new HighScore("../data/hscores.txt", container);
     this.highScores.add(hScores);
-
+    
     this.instructions.add(this.backButton1);
-
+    
     // Game component
     this.game = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0);
-    // this.game.add(this.backButton3);
+    this.game.setLayout(new GridLayout(3,3));
+
+    JPanel[][] panels = new JPanel[3][3];
+    for(int i = 0; i<3; i++) {
+        for(int j = 0; j < 3; j++) {
+            panels[i][j] = new JPanel();
+            panels[i][j].setOpaque(false);
+            if (i == 2 && j == 0) {
+              Container c = new Container();
+              Chat chat = new Chat(c);
+              panels[i][j].add(chat);
+            }
+            this.game.add(panels[i][j]);
+        }
+    }
 
     // Main frame components
     this.mainComponents.setLayout(new CardLayout());

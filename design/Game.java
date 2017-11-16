@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Game extends JPanel implements KeyListener {
+  // MultiThreadChatClient client;
   //adjustments between game and the field 2D array
   final static int ROW_ADJUST = 8;
   final static int COL_ADJUST = 6;
@@ -23,6 +24,11 @@ public class Game extends JPanel implements KeyListener {
   private Tile block = new Tile("images/prison_platform.png");
   private Tile floor = new Tile("images/tile.png");
   private int direction;
+  private Chat chat;
+  private boolean isInGame = true;
+  private String message = "";
+  private Thread clThread;
+  private int flag = 1;
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -75,6 +81,8 @@ public class Game extends JPanel implements KeyListener {
     this.camY = camY;
     this.direction = NONE;
     this.addKeyListener(this);
+    /* client = new MultiThreadChatClient("127.0.0.1", "2222", "PlayerName HEHE", this);
+    clThread = new Thread(client); */
   }
 
   @Override
@@ -117,7 +125,9 @@ public class Game extends JPanel implements KeyListener {
     }
 
     setFocusable(true);
-    requestFocus();
+    if (this.isInGame) {
+      requestFocus();
+    }
     this.repaint();
     this.revalidate();
   }
@@ -160,6 +170,19 @@ public class Game extends JPanel implements KeyListener {
         this.camX += this.offSet;
       }
     }
+    if( e.getKeyCode() == KeyEvent.VK_ENTER) {
+      if(isInGame) {
+        System.out.println("Ehllooo");
+        isInGame = false;
+        if(flag == 1){
+          this.chat.clThread.start();
+          this.flag = 0;
+        }
+      }  else {
+        System.out.println("Ehllooo2");
+        isInGame = true;
+      }
+    }
   }
 
   @Override
@@ -170,4 +193,39 @@ public class Game extends JPanel implements KeyListener {
   @Override
   public void keyTyped(KeyEvent arg0) {
   }
+
+  public void setInGameStatus(boolean isInGame) {
+    System.out.println("Here");
+    this.isInGame = isInGame;
+    requestFocus();
+  }
+
+  public void setChat(Chat chat) {
+    this.chat = chat;
+  }
+
+  public boolean getIsFocused() {
+    return this.isInGame;
+  }
+
+  public String getMessage () {
+    return this.message;
+  }
+
+  public void setMessage(String m) {
+    this.message = m;
+  }
+
+  /* public void setWaitThread(){
+    this.pauseThread();
+  }
+  private void pauseThread(){
+    try{
+      if(this.clThread.isAlive()){
+        this.clThread.wait();
+      }
+    } catch(Exception e) {
+      System.out.println("Error has occured");
+    }
+  } */
 }

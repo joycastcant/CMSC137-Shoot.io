@@ -31,6 +31,7 @@ public class MultiThreadChatServerSync {
 
     while (true) {
       try {
+        // Thread.sleep(50);
         clientSocket = serverSocket.accept();
         threads.add(new clientThread(clientSocket, threads));
         threads.get(threads.size()-1).start();

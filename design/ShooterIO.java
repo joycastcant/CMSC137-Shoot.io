@@ -10,8 +10,6 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 
 public class ShooterIO implements ActionListener {
-
-  
   // Containers
   JFrame mainFrame      = new JFrame("Shooter.io");
   JPanel mainComponents = new JPanel(new CardLayout());

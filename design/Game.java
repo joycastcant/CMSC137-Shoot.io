@@ -4,6 +4,7 @@ import java.awt.event.*;
 
 public class Game extends JPanel implements KeyListener {
   // MultiThreadChatClient client;
+  Client client;
   //adjustments between game and the field 2D array
   final static int ROW_ADJUST = 8;
   final static int COL_ADJUST = 6;
@@ -83,6 +84,15 @@ public class Game extends JPanel implements KeyListener {
     this.addKeyListener(this);
     /* client = new MultiThreadChatClient("127.0.0.1", "2222", "PlayerName HEHE", this);
     clThread = new Thread(client); */
+    try {
+      this.client = new Client("192.168.122.1", "8080");
+      Thread receiver = new Thread(this.client.getReceiver());
+      Thread sender = new Thread(this.client.getSender());
+      receiver.start();
+      sender.start();
+    } catch(Exception e) {
+      System.err.println(e);
+    }
   }
 
   @Override
@@ -144,6 +154,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = DOWN;
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
+        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_W) {
@@ -152,6 +163,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = UP;
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
+        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_A) {
@@ -160,6 +172,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = LEFT;
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
+        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_D) {
@@ -168,6 +181,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = RIGHT;
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
+        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {

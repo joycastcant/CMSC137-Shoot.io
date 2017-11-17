@@ -23,10 +23,8 @@ public class Game extends JPanel implements KeyListener {
   private int tileSize = 50;
   private Tile block = new Tile("images/prison_platform.png");
   private Tile floor = new Tile("images/tile.png");
-  private Tile bomb = new Tile("images/bombb.png");
   private Tile a = new Tile("images/a.png");
   private int direction;
-  int she=0;
 
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
@@ -83,8 +81,6 @@ public class Game extends JPanel implements KeyListener {
     this.setBackground(Color.black);
     this.generateBombs(10);
     this.addKeyListener(this);
-    System.out.println("lengh0 - " + this.field[0].length);
-    System.out.println("lengh - " + this.field.length);
   }
 
   public void generateBombs(int num) {
@@ -144,7 +140,6 @@ public class Game extends JPanel implements KeyListener {
                 if(this.bombs.get(k).isDead()) { // remove bomb if exploded
                   this.field[this.bombs.get(0).getX()][this.bombs.get(0).getY()] = 0;
                   this.bombs.remove(0);
-                  she++;
                 } else if(this.bombs.get(k).getX() == x && this.bombs.get(k).getY() == y) {
                   g.drawImage(this.bombs.get(k).getImg().getTile(), i, j, this);
 
@@ -152,7 +147,7 @@ public class Game extends JPanel implements KeyListener {
 
                   //---- SOUTH
                   for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
+                      if ( y+ld < this.field[0].length && this.field[x][(y+l)] != 1 ) {
                         g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j+(l*this.tileSize)), this);
                       } else break;
                   }
@@ -181,7 +176,6 @@ public class Game extends JPanel implements KeyListener {
               }
             }
           }
-
         } catch(ArrayIndexOutOfBoundsException e) { }
       }
     }

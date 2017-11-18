@@ -77,36 +77,41 @@ public class Game extends JPanel implements KeyListener {
     this.addKeyListener(this);
   }
 
+  Player player = new Player("My Name", field);
+
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
 
     // sudoX and sudoY represents the x and y of visible map to the camera
     //i and j represents the x and y of the window
+    this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
+    this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         // check if block or floor
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
-            /* switch (this.direction) {
+             g.drawImage(this.floor.getTile(), i, j, null);
+             switch (this.direction) {
               case UP:
-                g.setColor(Color.BLUE);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
               case RIGHT:
-                g.setColor(Color.PINK);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
               case DOWN:
-                g.setColor(Color.GREEN);
+                g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
                 break;
               case LEFT:
-                g.setColor(Color.ORANGE);
+                g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
                 break;
               default:
-                g.setColor(Color.BLACK);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
-            } */
-            g.setColor(Color.BLACK);
-            g.fillRect(i, j, this.tileSize, this.tileSize);
+            }
+            /*g.setColor(Color.BLACK);
+            g.fillRect(i, j, this.tileSize, this.tileSize);*/
           } else if(field[sudoX/this.tileSize][sudoY/this.tileSize] == 1)
             g.drawImage(this.block.getTile(), i, j, null);
           else
@@ -135,6 +140,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
       }
+      player.moveDown(field);
     }
     if( e.getKeyCode() == KeyEvent.VK_W) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
@@ -143,6 +149,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
       }
+      player.moveUp(field);
     }
     if( e.getKeyCode() == KeyEvent.VK_A) {
       nextX = (this.camX - this.offSet)/this.tileSize + ROW_ADJUST;
@@ -151,6 +158,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
       }
+      player.moveLeft(field);
     }
     if( e.getKeyCode() == KeyEvent.VK_D) {
       nextX = (this.camX + this.offSet)/this.tileSize + ROW_ADJUST;
@@ -159,12 +167,13 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
       }
+      player.moveRight(field);
     }
   }
 
   @Override
   public void keyReleased(KeyEvent e) {
-    this.direction = NONE;
+    //this.direction = NONE;
   }
 
   @Override

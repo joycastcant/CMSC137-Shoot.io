@@ -14,7 +14,7 @@ public class MultiThreadChatClient implements Runnable {
   private static BufferedReader inputLine = null;
   private static boolean closed = false;
 
-  public MultiThreadChatClient(String host, String portNumber, String name) {
+  public MultiThreadChatClient(String host, String portNumber, String name, Game game) {
 
     //Default Values
     // int portNumber = 2222;

@@ -88,9 +88,8 @@ public class Game extends JPanel implements KeyListener {
     this.setBackground(Color.black);
     this.generateBombs(10);
     this.addKeyListener(this);
-    /* client = new MultiThreadChatClient("127.0.0.1", "2222", "PlayerName HEHE", this);
-    clThread = new Thread(client); */
-    try {
+    
+    /*try {
       this.client = new Client("192.168.122.1", "8080");
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());
@@ -98,7 +97,7 @@ public class Game extends JPanel implements KeyListener {
       sender.start();
     } catch(Exception e) {
       System.err.println(e);
-    }
+    }*/
   }
 
   public void generateBombs(int num) {
@@ -165,7 +164,7 @@ public class Game extends JPanel implements KeyListener {
 
                   //---- SOUTH
                   for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( y+ld < this.field[0].length && this.field[x][(y+l)] != 1 ) {
+                      if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
                         g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j+(l*this.tileSize)), this);
                       } else break;
                   }
@@ -222,7 +221,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = DOWN;
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
-        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_W) {
@@ -231,7 +230,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = UP;
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
-        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_A) {
@@ -240,7 +239,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = LEFT;
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
-        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_D) {
@@ -249,7 +248,7 @@ public class Game extends JPanel implements KeyListener {
       this.direction = RIGHT;
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
-        this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
       }
     }
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {

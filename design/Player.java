@@ -15,14 +15,26 @@ public class Player { //implements KeyListener {
 	private boolean isDead;
 	private int posX;
 	private int posY;
+	private int direction;
 	private BufferedImage sprite;
+	private String id;
 	
-	public Player(String name, int[][] field){
+	public Player(String name, int[][] field, String id){
+		this.name = name;
+		this.points = 0;
+		this.kills = 0;
+		if (!this.name.equals(""))
+			this.spawn(field);
+		this.id = id;
+	}
+
+	/* public Player(String name, int[][] field, String id, int hp, int points, int kills){
 		this.name = name;
 		this.points = 0;
 		this.kills = 0;
 		this.spawn(field);
-	}  
+		this.id = id;
+	} */
 		
 	public void moveUp(int[][] field){
 		if(!this.isDead){
@@ -30,7 +42,7 @@ public class Player { //implements KeyListener {
 				if(field[this.posX][this.posY - 1] == 0){
 					field[this.posX][this.posY] = 0;
 					this.posY = this.posY - 1;
-					field[this.posX][this.posY] = 3;
+					field[this.posX][this.posY] = 4;
 				}
 			}
 		}
@@ -63,7 +75,7 @@ public class Player { //implements KeyListener {
 				if(field[this.posX + 1][this.posY] == 0){
 					field[this.posX][this.posY] = 0;
 					this.posX = this.posX + 1;
-					field[this.posX][this.posY] = 3;
+					field[this.posX][this.posY] = 4;
 				}
 			}
 		}
@@ -134,5 +146,14 @@ public class Player { //implements KeyListener {
 	}
 	public boolean getStatus(){
 		return this.isDead;
+	}
+	public int getDirection() {
+		return this.direction;
+	}
+	public String getId() {
+		return this.id;
+	}
+	public void setDirection(int dir) {
+		this.direction = dir;
 	}
 }

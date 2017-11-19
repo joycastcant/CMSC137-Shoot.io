@@ -5,15 +5,18 @@ import java.util.*;
 public class Client {
     private String host;
     private int port;
+    private String id;
     private ClientSenderThread sender;
     private ClientReceiverThread receiver;
 
-    public Client(String host, String port) throws Exception {
+    public Client(String host, String port, int[][] field) throws Exception {
         this.host = host;
         this.port = Integer.parseInt(port);
+        // this.id = host + "," + port;
 
         DatagramSocket socket = new DatagramSocket();
-        this.receiver = new ClientReceiverThread(socket);
+        this.id = socket.getLocalAddress().toString() + "," + socket.getLocalPort();
+        this.receiver = new ClientReceiverThread(socket, field);
         this.sender = new ClientSenderThread(socket, this.host, this.port);
     }
 
@@ -23,6 +26,10 @@ public class Client {
 
     public int getPort() {
         return this.port;
+    }
+
+    public String getId() {
+        return this.id;
     }
 
     public ClientSenderThread getSender() {

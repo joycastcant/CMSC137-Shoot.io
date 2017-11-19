@@ -32,6 +32,7 @@ public class Game extends JPanel implements KeyListener {
   private String message = "";
   private Thread clThread;
   private int flag = 1;
+  private Player player;
 
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
@@ -86,18 +87,19 @@ public class Game extends JPanel implements KeyListener {
     this.camY = camY;
     this.direction = NONE;
     this.setBackground(Color.black);
-    this.generateBombs(10);
+    // this.generateBombs(10);
     this.addKeyListener(this);
     
-    /*try {
-      this.client = new Client("192.168.122.1", "8080");
+    try {
+      this.client = new Client("192.168.122.1", "8080", this.field);
+      this.player =  new Player("My Name", this.field, this.client.getId());
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());
       receiver.start();
       sender.start();
     } catch(Exception e) {
       System.err.println(e);
-    }*/
+    }
   }
 
   public void generateBombs(int num) {
@@ -112,8 +114,6 @@ public class Game extends JPanel implements KeyListener {
       this.field[x][y] = 2;
     }
   }
-
-  Player player = new Player("My Name", field);
 
   @Override
   public void paintComponent(Graphics g) {
@@ -132,6 +132,7 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
+             
              switch (this.direction) {
               case UP:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
@@ -152,7 +153,17 @@ public class Game extends JPanel implements KeyListener {
             /* g.setColor(Color.BLACK);
             g.fillRect(i, j, this.tileSize, this.tileSize); */
           } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
-            g.drawImage(this.block.getTile(), i, j, this);
+              g.drawImage(this.block.getTile(), i, j, this);
+
+            else if(field[x][y] == 4) // IF FIELD CONTAINS A PLAYER
+              g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+
+            else if(field[x][y] == 3) // IF FIELD CONTAINS A PLAYER
+              g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+            
+            else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
+              g.drawImage(this.floor.getTile(), i, j, this);
+
           else { // IF FIELD CONTAINS -NO- BLOCK
             g.drawImage(this.floor.getTile(), i, j, this);
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
@@ -220,13 +231,17 @@ public class Game extends JPanel implements KeyListener {
     int nextX = 0;
     int nextY = 0;
 
+    int currX = (this.camX/this.tileSize) + ROW_ADJUST;
+    int currY = (this.camY/this.tileSize) + COL_ADJUST;
+    
     if( e.getKeyCode() == KeyEvent.VK_S) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
       nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
       this.direction = DOWN;
+      player.setDirection(DOWN);
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
-        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
       }
       player.moveDown(field);
     }
@@ -234,9 +249,10 @@ public class Game extends JPanel implements KeyListener {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
       nextY = (this.camY - this.offSet)/this.tileSize + COL_ADJUST;
       this.direction = UP;
+      player.setDirection(UP);
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
-        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
       }
       player.moveUp(field);
     }
@@ -244,9 +260,10 @@ public class Game extends JPanel implements KeyListener {
       nextX = (this.camX - this.offSet)/this.tileSize + ROW_ADJUST;
       nextY = (this.camY/this.tileSize) + COL_ADJUST;
       this.direction = LEFT;
+      player.setDirection(LEFT);
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
-        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
       }
       player.moveLeft(field);
     }
@@ -254,10 +271,12 @@ public class Game extends JPanel implements KeyListener {
       nextX = (this.camX + this.offSet)/this.tileSize + ROW_ADJUST;
       nextY = (this.camY/this.tileSize) + COL_ADJUST;
       this.direction = RIGHT;
+      player.setDirection(RIGHT);
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
-        // this.client.getSender().setData("x: " + nextX + "\n y: " + nextY + "\n");
+        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
       }
+      player.moveRight(field);
     }
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {
       if(isInGame) {
@@ -277,10 +296,9 @@ public class Game extends JPanel implements KeyListener {
       if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
       }
-      player.moveRight(field);
     }
   }
-
+  
   @Override
   public void keyReleased(KeyEvent e) {
     //this.direction = NONE;

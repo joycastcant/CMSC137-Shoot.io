@@ -3,8 +3,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 
-public class ShooterIO implements ActionListener {
+/* import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.GameContainer;
+// import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException; */
 
+public class ShooterIO implements ActionListener {
   // Containers
   JFrame mainFrame      = new JFrame("Shooter.io");
   JPanel mainComponents = new JPanel(new CardLayout());
@@ -88,7 +93,8 @@ public class ShooterIO implements ActionListener {
     this.instructions.add(this.backButton1);
     
     // Game component
-    this.game = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0);
+    Game g = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0);
+    this.game = g;
     this.game.setLayout(new GridLayout(3,3));
 
     JPanel[][] panels = new JPanel[3][3];
@@ -98,7 +104,8 @@ public class ShooterIO implements ActionListener {
             panels[i][j].setOpaque(false);
             if (i == 2 && j == 0) {
               Container c = new Container();
-              Chat chat = new Chat(c);
+              Chat chat = new Chat(c,g);
+              g.setChat(chat);
               panels[i][j].add(chat);
             }
             this.game.add(panels[i][j]);
@@ -116,19 +123,19 @@ public class ShooterIO implements ActionListener {
 
   public void setBackgrounds() {
     this.home = new JPanel(){
-      @Override
+      // @Override
       protected void paintComponent(Graphics g) {
         g.drawImage((new Tile("images/background.png")).getTile(), 0, 0, null);
       }
     };
     this.highScores = new JPanel(){
-      @Override
+      // @Override
       protected void paintComponent(Graphics g) {
         g.drawImage((new Tile("images/background.png")).getTile(), 0, 0, null);
       }
     };
     this.instructions = new JPanel(){
-      @Override
+      // @Override
       protected void paintComponent(Graphics g) {
         g.drawImage((new Tile("images/inst.png")).getTile(), 0, 0, null);
       }
@@ -168,8 +175,9 @@ public class ShooterIO implements ActionListener {
   /* ActionListener */
   @Override
   public void actionPerformed(ActionEvent e) {
-    if( e.getSource() == this.playButton )
+    if( e.getSource() == this.playButton ){
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.GAMEPANEL);
+    }
     if( e.getSource() == this.instructionsButton )
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.INSTRUCTIONSPANEL);
     if( e.getSource() == this.highScoresButton )

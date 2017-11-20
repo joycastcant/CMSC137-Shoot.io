@@ -91,7 +91,9 @@ public class Game extends JPanel implements KeyListener {
     this.addKeyListener(this);
     
     try {
-      this.client = new Client("192.168.122.1", "8080", this.field);
+      //change ip address according to your computer/network
+      
+      this.client = new Client("10.0.4.21", "8080", this.field);
       this.player =  new Player("My Name", this.field, this.client.getId());
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());

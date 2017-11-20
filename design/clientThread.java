@@ -66,12 +66,14 @@ public class clientThread extends Thread {
           }
         }
       }
-
-      is.close();
-      os.close();
-      clientSocket.close();
     } catch (IOException e) {
-      System.exit(0);
+      try{
+        is.close();
+        os.close();
+        clientSocket.close();
+      } catch (Exception ee) {
+        System.exit(0); 
+      }  
     }
   }
 }

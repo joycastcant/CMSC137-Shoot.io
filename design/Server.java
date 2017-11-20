@@ -28,6 +28,7 @@ public class Server extends Thread {
                 InetAddress clientAddress = packet.getAddress();
                 int clientPort = packet.getPort();
                 
+                System.out.println("CONTENT: " + content);
                 String id = clientAddress.toString() + "," + clientPort;
                 if (!existingClients.containsKey(id)) {
                     int k = existingClients.size();

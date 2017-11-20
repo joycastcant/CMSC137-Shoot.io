@@ -52,7 +52,7 @@ public class Chat extends JPanel implements KeyListener {
         this.add(inputField, BorderLayout.SOUTH);
         this.add(mainWindow, BorderLayout.CENTER);
         
-        client = new MultiThreadChatClient("127.0.0.1", "2222", "PlayerName HEHE", this.game);
+        client = new MultiThreadChatClient("10.0.4.21", "2222", "PlayerName HEHE", this.game);
         clThread = new Thread(client);
     }
     @Override

@@ -21,6 +21,7 @@ public class ClientReceiverThread extends Thread {
                 System.out.println("receive");
                 sock.receive(packet);
                 received = new String(packet.getData(), 0, packet.getLength());
+                System.out.println("received: " + received);
                 
                 String[] pos = received.split(",");
                 String id = pos[0] + "," + pos[1];
@@ -28,12 +29,12 @@ public class ClientReceiverThread extends Thread {
                 if(players.containsKey(id)) {
                     p = players.get(id);
                 } else {
-                    System.out.println("NEW: "+id);
+                    System.out.println("NEW: "+id);2
                     p = new Player("My Name", field, id);
                     players.put(id, p);
                 }
 
-                //way too many players
+                // way too many players
                 // field[Integer.parseInt(pos[4])][Integer.parseInt(pos[5])] = 0;
                 
                 //blinking player

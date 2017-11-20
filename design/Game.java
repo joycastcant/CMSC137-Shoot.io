@@ -87,7 +87,7 @@ public class Game extends JPanel implements KeyListener {
     this.camY = camY;
     this.direction = NONE;
     this.setBackground(Color.black);
-    // this.generateBombs(10);
+    this.generateBombs(10);
     this.addKeyListener(this);
     
     try {

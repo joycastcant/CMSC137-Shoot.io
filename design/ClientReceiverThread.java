@@ -28,6 +28,7 @@ public class ClientReceiverThread extends Thread {
                 Player p = new Player("", field, id);
                 if(players.containsKey(id)) {
                     p = players.get(id);
+                    System.out.println("EXISTING :"+id);
                 } else {
                     System.out.println("NEW: "+id);
                     p = new Player("My Name", field, id);
@@ -44,7 +45,7 @@ public class ClientReceiverThread extends Thread {
                 //             field[i][j] = 0;
                 //     }
                 // }
-                
+
                 if (Integer.parseInt(pos[6]) == Game.DOWN || Integer.parseInt(pos[6]) == Game.LEFT)
                     field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 5;
                 else

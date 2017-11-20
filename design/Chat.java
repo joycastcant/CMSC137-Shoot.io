@@ -16,6 +16,7 @@ public class Chat extends JPanel implements KeyListener {
     protected Thread clThread;
     private int flag = 1;
     private JTextArea chatWindow;
+    private int chatCounter = 0;
     
 	public Chat(Container container, Game game) {
         super(new BorderLayout(), true);
@@ -30,13 +31,14 @@ public class Chat extends JPanel implements KeyListener {
         JPanel mainWindow = new JPanel();
 
         // mainWindow.setLayout(new BoxLayout(con, BoxLayout.PAGE_AXIS));
-
         mainWindow.setBackground(new Color(250, 250, 250, 70));
         this.setBackground(new Color(250, 250, 250, 70));
         // mainWindow.setOpacity()
 
         chatWindow = new JTextArea(11, 1);
 
+        JScrollPane s = new JScrollPane();
+        s.setViewportView(chatWindow);
         JPanel inputField = new JPanel();
         this.inputMsg = new JTextField(23);
         this.inputMsg.setEditable(true);
@@ -47,11 +49,11 @@ public class Chat extends JPanel implements KeyListener {
         }
         inputField.add(inputMsg);
 
-        this.add(chatWindow, BorderLayout.NORTH);
+        this.add(s, BorderLayout.NORTH);
         this.add(inputField, BorderLayout.SOUTH);
         this.add(mainWindow, BorderLayout.CENTER);
         
-        client = new MultiThreadChatClient("10.0.4.21", "2222", "PlayerName HEHE", this.game);
+        client = new MultiThreadChatClient("10.0.4.21", "2222", "Player1", this.game);
         clThread = new Thread(client);
     }
     @Override
@@ -78,6 +80,14 @@ public class Chat extends JPanel implements KeyListener {
     }
 
     public void appendMessage(String msg) {
-        this.chatWindow.append(msg);
+        if (chatCounter < 11) {
+            this.chatWindow.append(msg);
+            this.chatCounter = this.chatCounter + 1;
+        }
+        else {
+            this.chatWindow.setText("");
+            this.chatWindow.append(msg);
+            this.chatCounter = 0;
+        }
     }
 }

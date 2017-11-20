@@ -30,7 +30,7 @@ public class ClientSenderThread extends Thread {
         while (true) {
             try {
                 //while (!in.ready()) {
-                    Thread.sleep(1000);
+                this.sleep(10);
                 //}
                 transmit(this.data);
             } catch(Exception e) {

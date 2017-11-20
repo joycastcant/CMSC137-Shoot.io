@@ -29,26 +29,26 @@ public class ClientReceiverThread extends Thread {
                 if(players.containsKey(id)) {
                     p = players.get(id);
                 } else {
-                    System.out.println("NEW: "+id);2
+                    System.out.println("NEW: "+id);
                     p = new Player("My Name", field, id);
                     players.put(id, p);
                 }
 
                 // way too many players
-                // field[Integer.parseInt(pos[4])][Integer.parseInt(pos[5])] = 0;
+                field[Integer.parseInt(pos[4])][Integer.parseInt(pos[5])] = 0;
                 
-                //blinking player
-                for(int i=0; i<field.length; i++) {
-                    for(int j=0; j<field[0].length; j++){
-                        if(field[i][j] == 3 || field[i][j] == 4)
-                            field[i][j] = 0;
-                    }
-                }
-
+                // //blinking player
+                // for(int i=0; i<field.length; i++) {
+                //     for(int j=0; j<field[0].length; j++){
+                //         if(field[i][j] == 3 || field[i][j] == 4)
+                //             field[i][j] = 0;
+                //     }
+                // }
+                
                 if (Integer.parseInt(pos[6]) == Game.DOWN || Integer.parseInt(pos[6]) == Game.LEFT)
-                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 3;
+                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 5;
                 else
-                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 4;
+                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 6;
                 // System.out.println("AAA "+received);
             } catch(Exception e) {
                 // System.err.println(e);

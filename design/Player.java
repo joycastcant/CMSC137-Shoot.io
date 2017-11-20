@@ -5,8 +5,9 @@ import java.util.Random;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.lang.Runnable;
 
-public class Player { //implements KeyListener {
+public class Player implements Runnable{ //implements KeyListener {
 	private String name;
 	private int hp;
 	private int points;
@@ -43,6 +44,11 @@ public class Player { //implements KeyListener {
 					field[this.posX][this.posY] = 0;
 					this.posY = this.posY - 1;
 					field[this.posX][this.posY] = 4;
+					try{
+						Thread.sleep(10);
+					} catch (Exception e) {
+						System.out.println(e);
+					}
 				}
 			}
 		}
@@ -54,6 +60,11 @@ public class Player { //implements KeyListener {
 					field[this.posX][this.posY] = 0;
 					this.posY = this.posY + 1;
 					field[this.posX][this.posY] = 3;
+					try{
+						Thread.sleep(10);
+					} catch (Exception e) {
+						System.out.println(e);
+					}
 				}
 			}
 		}
@@ -65,6 +76,11 @@ public class Player { //implements KeyListener {
 					field[this.posX][this.posY] = 0;
 					this.posX = this.posX - 1;
 					field[this.posX][this.posY] = 3;
+					try{
+						Thread.sleep(10);
+					} catch (Exception e) {
+						System.out.println(e);
+					}
 				}
 			}
 		}
@@ -76,11 +92,20 @@ public class Player { //implements KeyListener {
 					field[this.posX][this.posY] = 0;
 					this.posX = this.posX + 1;
 					field[this.posX][this.posY] = 4;
+					try{
+						Thread.sleep(10);
+					} catch (Exception e) {
+						System.out.println(e);
+					}
 				}
 			}
 		}
 	}
 	
+	public void run(){
+
+	}
+
 	public void shoot(){
 	}
 	public void invulnerable(){

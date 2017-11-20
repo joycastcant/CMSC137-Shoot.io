@@ -41,7 +41,6 @@ public class Chat extends JPanel implements KeyListener {
         this.inputMsg = new JTextField(23);
         this.inputMsg.setEditable(true);
         this.inputMsg.setEnabled(true);
-        this.inputMsg.setText("asdasd");
         this.inputMsg.addKeyListener(this);
         if(!this.game.getIsFocused()) {
             this.inputMsg.requestFocus();

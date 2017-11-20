@@ -92,7 +92,7 @@ public class Game extends JPanel implements KeyListener {
     
     try {
       //change ip address according to your computer/network
-      
+
       this.client = new Client("10.0.4.21", "8080", this.field);
       this.player =  new Player("My Name", this.field, this.client.getId());
       Thread receiver = new Thread(this.client.getReceiver());
@@ -157,10 +157,10 @@ public class Game extends JPanel implements KeyListener {
           } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
               g.drawImage(this.block.getTile(), i, j, this);
 
-            else if(field[x][y] == 4) // IF FIELD CONTAINS A PLAYER
+            else if(field[x][y] == 6) // IF FIELD CONTAINS A PLAYER
               g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
 
-            else if(field[x][y] == 3) // IF FIELD CONTAINS A PLAYER
+            else if(field[x][y] == 5) // IF FIELD CONTAINS A PLAYER
               g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
             
             else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
@@ -230,6 +230,78 @@ public class Game extends JPanel implements KeyListener {
   @Override
   public void keyPressed( KeyEvent e ){
     // scroll through map
+    // int nextX = 0;
+    // int nextY = 0;
+
+    // int currX = (this.camX/this.tileSize) + ROW_ADJUST;
+    // int currY = (this.camY/this.tileSize) + COL_ADJUST;
+    
+    // if( e.getKeyCode() == KeyEvent.VK_S) {
+    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
+    //   nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
+    //   this.direction = DOWN;
+    //   player.setDirection(DOWN);
+    //   if(field[nextX][nextY] != 1) {
+    //     this.camY += this.offSet;
+    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+    //   }
+    //   player.moveDown(field);
+    // }
+    // if( e.getKeyCode() == KeyEvent.VK_W) {
+    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
+    //   nextY = (this.camY - this.offSet)/this.tileSize + COL_ADJUST;
+    //   this.direction = UP;
+    //   player.setDirection(UP);
+    //   if(field[nextX][nextY] != 1) {
+    //     this.camY -= this.offSet;
+    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+    //   }
+    //   player.moveUp(field);
+    // }
+    // if( e.getKeyCode() == KeyEvent.VK_A) {
+    //   nextX = (this.camX - this.offSet)/this.tileSize + ROW_ADJUST;
+    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
+    //   this.direction = LEFT;
+    //   player.setDirection(LEFT);
+    //   if(field[nextX][nextY] != 1) {
+    //     this.camX -= this.offSet;
+    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+    //   }
+    //   player.moveLeft(field);
+    // }
+    // if( e.getKeyCode() == KeyEvent.VK_D) {
+    //   nextX = (this.camX + this.offSet)/this.tileSize + ROW_ADJUST;
+    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
+    //   this.direction = RIGHT;
+    //   player.setDirection(RIGHT);
+    //   if(field[nextX][nextY] != 1) {
+    //     this.camX += this.offSet;
+    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+    //   }
+    //   player.moveRight(field);
+    // }
+    if( e.getKeyCode() == KeyEvent.VK_ENTER) {
+      if(isInGame) {
+        isInGame = false;
+        if(flag == 1){
+          this.chat.clThread.start();
+          this.flag = 0;
+        }
+      }  else {
+        isInGame = true;
+      }
+    }
+    // bomb
+    // if( e.getKeyCode() == KeyEvent.VK_UP) {
+    //   if(this.bombs.size()!=0) {
+    //     this.bombs.get(0).explode();
+    //   }
+    // }
+  }
+  
+  @Override
+  public void keyReleased(KeyEvent e) {
+    //this.direction = NONE;
     int nextX = 0;
     int nextY = 0;
 
@@ -280,30 +352,12 @@ public class Game extends JPanel implements KeyListener {
       }
       player.moveRight(field);
     }
-    if( e.getKeyCode() == KeyEvent.VK_ENTER) {
-      if(isInGame) {
-        System.out.println("Ehllooo");
-        isInGame = false;
-        if(flag == 1){
-          this.chat.clThread.start();
-          this.flag = 0;
-        }
-      }  else {
-        System.out.println("Ehllooo2");
-        isInGame = true;
-      }
-    }
-    // bomb
+
     if( e.getKeyCode() == KeyEvent.VK_UP) {
       if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
       }
     }
-  }
-  
-  @Override
-  public void keyReleased(KeyEvent e) {
-    //this.direction = NONE;
   }
 
   @Override

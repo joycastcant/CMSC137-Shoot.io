@@ -15,6 +15,7 @@ public class Chat extends JPanel implements KeyListener {
     private String line = "";
     protected Thread clThread;
     private int flag = 1;
+    private JTextArea chatWindow;
     
 	public Chat(Container container, Game game) {
         super(new BorderLayout(), true);
@@ -34,6 +35,8 @@ public class Chat extends JPanel implements KeyListener {
         this.setBackground(new Color(250, 250, 250, 70));
         // mainWindow.setOpacity()
 
+        chatWindow = new JTextArea(11, 1);
+
         JPanel inputField = new JPanel();
         this.inputMsg = new JTextField(23);
         this.inputMsg.setEditable(true);
@@ -45,6 +48,7 @@ public class Chat extends JPanel implements KeyListener {
         }
         inputField.add(inputMsg);
 
+        this.add(chatWindow, BorderLayout.NORTH);
         this.add(inputField, BorderLayout.SOUTH);
         this.add(mainWindow, BorderLayout.CENTER);
         
@@ -72,5 +76,9 @@ public class Chat extends JPanel implements KeyListener {
 
     public void setInChat(boolean inChat) {
         this.inChat = inChat;
+    }
+
+    public void appendMessage(String msg) {
+        this.chatWindow.append(msg);
     }
 }

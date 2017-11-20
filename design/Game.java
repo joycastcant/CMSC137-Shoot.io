@@ -329,6 +329,10 @@ public class Game extends JPanel implements KeyListener {
   public void setMessage(String m) {
     this.message = m;
   }
+  
+  public void appendMsg(String msg) {
+    this.chat.appendMessage(msg);
+  }
 
   /* public void setWaitThread(){
     this.pauseThread();

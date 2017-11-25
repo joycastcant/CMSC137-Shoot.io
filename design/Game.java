@@ -33,6 +33,9 @@ public class Game extends JPanel implements KeyListener {
   private Thread clThread;
   private int flag = 1;
   private Player player;
+  private String name;
+  private String host;
+  private String port;
 
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
@@ -80,7 +83,7 @@ public class Game extends JPanel implements KeyListener {
                         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
                     };
 
-  public Game(int width, int height, int camX, int camY) {
+  public Game(int width, int height, int camX, int camY, String host, String port, String name) {
     this.width = field.length * this.tileSize;//width;
     this.height = field[0].length * this.tileSize;//height;
     this.camX = camX;
@@ -90,11 +93,15 @@ public class Game extends JPanel implements KeyListener {
     this.generateBombs(10);
     this.addKeyListener(this);
     
+    this.host = host;
+    this.port = port;
+    this.name = name;
+
     try {
       //change ip address according to your computer/network
 
-      this.client = new Client("10.0.4.21", "8080", this.field);
-      this.player =  new Player("My Name", this.field, this.client.getId());
+      this.client = new Client(this.host, this.port, this.field);
+      this.player =  new Player(this.name, this.field, this.client.getId());
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());
       receiver.start();
@@ -104,7 +111,7 @@ public class Game extends JPanel implements KeyListener {
     }
   }
 
-  public void generateBombs(int num) {
+    public void generateBombs(int num) {
     Random rand = new Random();
     int x,y;
     for(int i=0;i<num;i++) { // randomized position
@@ -291,6 +298,7 @@ public class Game extends JPanel implements KeyListener {
         isInGame = true;
       }
     }
+
     // bomb
     // if( e.getKeyCode() == KeyEvent.VK_UP) {
     //   if(this.bombs.size()!=0) {
@@ -315,7 +323,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(DOWN);
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(player);
       }
       player.moveDown(field);
     }
@@ -326,7 +334,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(UP);
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(player);
       }
       player.moveUp(field);
     }
@@ -337,7 +345,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(LEFT);
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(player);
       }
       player.moveLeft(field);
     }
@@ -348,7 +356,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(RIGHT);
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(player);
       }
       player.moveRight(field);
     }

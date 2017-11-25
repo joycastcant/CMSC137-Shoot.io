@@ -23,12 +23,12 @@ public class Server extends Thread {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
                 
-                String content = new String(packet.getData(), 0, packet.getLength());
+                // String content = new String(packet.getData(), 0, packet.getLength());
                 
                 InetAddress clientAddress = packet.getAddress();
                 int clientPort = packet.getPort();
                 
-                System.out.println("CONTENT: " + content);
+                // System.out.println("CONTENT: " + content);
                 String id = clientAddress.toString() + "," + clientPort;
                 if (!existingClients.containsKey(id)) {
                     int k = existingClients.size();
@@ -37,7 +37,8 @@ public class Server extends Thread {
                     clientAddresses.add(clientAddress);
                 }
                 
-                byte[] data = content.getBytes();
+                // byte[] data = content.getBytes();
+                byte data[] = packet.getData();
                 
                 for (int i = 0; i < clientAddresses.size(); i++) {
                     InetAddress addr = clientAddresses.get(i);

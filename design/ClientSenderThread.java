@@ -7,7 +7,7 @@ public class ClientSenderThread extends Thread {
     private int port;
     private DatagramSocket socket;
     private String host;
-    private String data;
+    private Player data;
 
     ClientSenderThread(DatagramSocket socket, String host, int port) {
         this.socket = socket;
@@ -19,7 +19,7 @@ public class ClientSenderThread extends Thread {
         boolean connected = false;
         do {
             try {
-                transmit("START");
+                // transmit("START");
                 connected = true;
             } catch (Exception e) {
                 
@@ -39,15 +39,16 @@ public class ClientSenderThread extends Thread {
         }
     }
     
-    private void transmit(String message) throws Exception {        
-        byte buf[] = message.getBytes();
+    private void transmit(Player message) throws Exception {        
+        //byte[] buf = message.getBytes();
+        byte[] buf = message.serialize();
         InetAddress address = InetAddress.getByName(this.host);
         System.out.println(address + ":" + this.port);
         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, this.port);
         socket.send(packet);
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setData(Player player) {
+        this.data = player;
     }
 }

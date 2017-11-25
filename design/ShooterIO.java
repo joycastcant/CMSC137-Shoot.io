@@ -10,6 +10,11 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException; */
 
 public class ShooterIO implements ActionListener {
+  // Data
+  private String host;
+  private String port;
+  private String name;
+
   // Containers
   JFrame mainFrame      = new JFrame("Shooter.io");
   JPanel mainComponents = new JPanel(new CardLayout());
@@ -92,25 +97,13 @@ public class ShooterIO implements ActionListener {
     
     this.instructions.add(this.backButton1);
     
+    //Data collection
+    this.collectData(container);
+    
     // Game component
-    Game g = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0);
+    Game g = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0, this.host, this.port, this.name);
     this.game = g;
     this.game.setLayout(new GridLayout(3,3));
-
-    JPanel[][] panels = new JPanel[3][3];
-    for(int i = 0; i<3; i++) {
-        for(int j = 0; j < 3; j++) {
-            panels[i][j] = new JPanel();
-            panels[i][j].setOpaque(false);
-            if (i == 2 && j == 0) {
-              Container c = new Container();
-              Chat chat = new Chat(c,g);
-              g.setChat(chat);
-              panels[i][j].add(chat);
-            }
-            this.game.add(panels[i][j]);
-        }
-    }
 
     // Main frame components
     this.mainComponents.setLayout(new CardLayout());
@@ -119,6 +112,21 @@ public class ShooterIO implements ActionListener {
     this.mainComponents.add(this.instructions, ShooterIO.INSTRUCTIONSPANEL);
     this.mainComponents.add(this.highScores, ShooterIO.HIGHSCORESPANEL);
     this.mainFrame.add(this.mainComponents);
+
+    JPanel[][] panels = new JPanel[3][3];
+    for(int i = 0; i<3; i++) {
+        for(int j = 0; j < 3; j++) {
+            panels[i][j] = new JPanel();
+            panels[i][j].setOpaque(false);
+            if (i == 2 && j == 0) {
+              Container c = new Container();
+              Chat chat = new Chat(c, g, this.host, this.port, this.name);
+              g.setChat(chat);
+              panels[i][j].add(chat);
+            }
+            this.game.add(panels[i][j]);
+        }
+    }
   }
 
   public void setBackgrounds() {
@@ -170,6 +178,49 @@ public class ShooterIO implements ActionListener {
       }
 		});
     return b;
+  }
+
+  public void collectData(Container container) {
+    JPanel all = new JPanel(new GridLayout(3, 1));
+
+    FlowLayout leftFlow = new FlowLayout(FlowLayout.LEFT);
+
+    JPanel namePanel = new JPanel();
+    namePanel.setLayout(leftFlow);
+    JLabel nameLabel = new JLabel("Input name: ");
+    JTextField nameField = new JTextField(15);
+    namePanel.add(nameLabel);
+    namePanel.add(nameField);
+
+    JPanel hostPanel = new JPanel();
+    hostPanel.setLayout(leftFlow);
+    JLabel hostLabel = new JLabel("Input host: ");
+    JTextField hostField = new JTextField(15);
+    hostPanel.add(hostLabel);
+    hostPanel.add(hostField);
+
+    JPanel portPanel = new JPanel();
+    portPanel.setLayout(leftFlow);
+    JLabel portLabel = new JLabel("Input port: ");
+    JTextField portField = new JTextField(15);
+    portPanel.add(portLabel);
+    portPanel.add(portField);
+
+    all.add(namePanel);
+    all.add(hostPanel);
+    all.add(portPanel);
+
+    JOptionPane pane = new JOptionPane(all);
+
+    JDialog dialog = pane.createDialog(container, "ShooterIO: Welcome!");
+
+    dialog.setVisible(true);
+
+    if(((Integer)pane.getValue()).intValue() == JOptionPane.OK_OPTION) {
+        this.name = nameField.getText();
+        this.host = hostField.getText();
+        this.port = portField.getText();
+    } else System.exit(0);
   }
 
   /* ActionListener */

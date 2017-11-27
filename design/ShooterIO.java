@@ -118,6 +118,11 @@ public class ShooterIO implements ActionListener {
         for(int j = 0; j < 3; j++) {
             panels[i][j] = new JPanel();
             panels[i][j].setOpaque(false);
+            if (i == 0 && j == 0) {
+              Container c = new Container();
+              Map m = new Map(g, c, 267, 200, 0, 0);
+              panels[i][j].add(m);
+            }
             if (i == 2 && j == 0) {
               Container c = new Container();
               Chat chat = new Chat(c, g, this.host, this.port, this.name);

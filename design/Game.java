@@ -36,6 +36,7 @@ public class Game extends JPanel implements KeyListener {
   private String name;
   private String host;
   private String port;
+  private Map map;
 
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
@@ -132,6 +133,7 @@ public class Game extends JPanel implements KeyListener {
     //i and j represents the x and y of the window
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
+    this.map.setXY(camX, camY);
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;
@@ -141,7 +143,6 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
-             
              switch (this.direction) {
               case UP:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
@@ -236,57 +237,7 @@ public class Game extends JPanel implements KeyListener {
 
   @Override
   public void keyPressed( KeyEvent e ){
-    // scroll through map
-    // int nextX = 0;
-    // int nextY = 0;
-
-    // int currX = (this.camX/this.tileSize) + ROW_ADJUST;
-    // int currY = (this.camY/this.tileSize) + COL_ADJUST;
     
-    // if( e.getKeyCode() == KeyEvent.VK_S) {
-    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
-    //   nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
-    //   this.direction = DOWN;
-    //   player.setDirection(DOWN);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camY += this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveDown(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_W) {
-    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
-    //   nextY = (this.camY - this.offSet)/this.tileSize + COL_ADJUST;
-    //   this.direction = UP;
-    //   player.setDirection(UP);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camY -= this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveUp(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_A) {
-    //   nextX = (this.camX - this.offSet)/this.tileSize + ROW_ADJUST;
-    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
-    //   this.direction = LEFT;
-    //   player.setDirection(LEFT);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camX -= this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveLeft(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_D) {
-    //   nextX = (this.camX + this.offSet)/this.tileSize + ROW_ADJUST;
-    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
-    //   this.direction = RIGHT;
-    //   player.setDirection(RIGHT);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camX += this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveRight(field);
-    // }
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {
       if(isInGame) {
         isInGame = false;
@@ -312,9 +263,6 @@ public class Game extends JPanel implements KeyListener {
     //this.direction = NONE;
     int nextX = 0;
     int nextY = 0;
-
-    int currX = (this.camX/this.tileSize) + ROW_ADJUST;
-    int currY = (this.camY/this.tileSize) + COL_ADJUST;
     
     if( e.getKeyCode() == KeyEvent.VK_S) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
@@ -324,6 +272,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
         this.client.getSender().setData(player);
+        // this.map.setXY((this.camX), (this.camY + 11));
       }
       player.moveDown(field);
     }
@@ -335,6 +284,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
         this.client.getSender().setData(player);
+        // this.map.setXY((this.camX), (this.camY - 11));
       }
       player.moveUp(field);
     }
@@ -346,6 +296,7 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
         this.client.getSender().setData(player);
+        // this.map.setXY((this.camX - 11), (this.camY));
       }
       player.moveLeft(field);
     }
@@ -357,8 +308,13 @@ public class Game extends JPanel implements KeyListener {
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
         this.client.getSender().setData(player);
+        // this.map.setXY((this.camX + 11), (this.camY));
       }
       player.moveRight(field);
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+      
     }
 
     if( e.getKeyCode() == KeyEvent.VK_UP) {
@@ -396,6 +352,10 @@ public class Game extends JPanel implements KeyListener {
   
   public void appendMsg(String msg) {
     this.chat.appendMessage(msg);
+  }
+
+  public void setMap(Map map) {
+    this.map = map;
   }
 
   /* public void setWaitThread(){

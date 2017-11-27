@@ -53,9 +53,5 @@ public class Server extends Thread {
             }
         }
     }
-    
-    public static void main(String args[]) throws Exception {
-        Server s = new Server(Integer.parseInt(args[0]));
-        s.start();
-    }
+
 }

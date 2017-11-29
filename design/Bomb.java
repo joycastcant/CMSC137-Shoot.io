@@ -1,12 +1,13 @@
+import java.io.Serializable;
 import java.util.TimerTask;
 import java.util.Timer;
 
-public class Bomb {
+public class Bomb implements Serializable {
   private int xPos;
   private int yPos;
   private Tile img;
   private boolean dead;
-  private Timer timer;
+  private transient Timer timer;
   private int explosion; // current explosion range
   private int range;    // range of explosion
 
@@ -31,6 +32,10 @@ public class Bomb {
 
   public void die() {
     this.dead = true;
+  }
+
+  public void setTile(Tile t) {
+    this.img = t;
   }
 
   /*=========

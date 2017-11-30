@@ -17,6 +17,7 @@ public class ShooterIO implements ActionListener {
 
   // Containers
   JFrame mainFrame      = new JFrame("Shooter.io");
+  JFrame mapFrame;
   JPanel mainComponents = new JPanel(new CardLayout());
   JPanel mainButtons    = new JPanel();
 
@@ -38,6 +39,7 @@ public class ShooterIO implements ActionListener {
   // JButton backButton3 = getButton("Back");
 
   Font font;
+  Game g;
 
   // For card layout reference
   final static String HOMEPANEL         = "Home";
@@ -101,7 +103,7 @@ public class ShooterIO implements ActionListener {
     this.collectData(container);
     
     // Game component
-    Game g = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0, this.host, this.port, this.name);
+    g = new Game(ShooterIO.WIDTH, ShooterIO.HEIGHT, 0, 0, this.host, this.port, this.name);
     this.game = g;
     this.game.setLayout(new GridLayout(3,3));
 
@@ -118,11 +120,11 @@ public class ShooterIO implements ActionListener {
         for(int j = 0; j < 3; j++) {
             panels[i][j] = new JPanel();
             panels[i][j].setOpaque(false);
-            if (i == 0 && j == 0) {
-              Container c = new Container();
-              Map m = new Map(g, c, 267, 200, 0, 0);
-              panels[i][j].add(m);
-            }
+            // if (i == 0 && j == 0) {
+            //   Container c = new Container();
+            //   Map m = new Map(g, c, 267, 200, 0, 0);
+            //   panels[i][j].add(m);
+            // }
             if (i == 2 && j == 0) {
               Container c = new Container();
               Chat chat = new Chat(c, g, this.host, this.port, this.name);
@@ -233,6 +235,15 @@ public class ShooterIO implements ActionListener {
   public void actionPerformed(ActionEvent e) {
     if( e.getSource() == this.playButton ){
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.GAMEPANEL);
+      this.mapFrame = new JFrame();
+      this.mapFrame.setPreferredSize(new Dimension(285,500));
+      Container cc = new Container();
+      Map map = new Map(this.g, cc, 267, 200, 0, 0);
+      this.mapFrame.add(map);
+      this.mapFrame.repaint();
+      this.mapFrame.revalidate();
+      this.mapFrame.pack();
+      this.mapFrame.setVisible(true);
     }
     if( e.getSource() == this.instructionsButton )
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.INSTRUCTIONSPANEL);

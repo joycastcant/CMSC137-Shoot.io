@@ -93,7 +93,7 @@ public class Game extends JPanel implements KeyListener {
     this.setBackground(Color.black);
     this.generateBombs(10);
     this.addKeyListener(this);
-    
+
     this.host = host;
     this.port = port;
     this.name = name;
@@ -133,7 +133,7 @@ public class Game extends JPanel implements KeyListener {
     //i and j represents the x and y of the window
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
-    this.map.setXY(camX, camY);
+    this.map.setPosition(this.player.getPosX(), this.player.getPosY());
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;

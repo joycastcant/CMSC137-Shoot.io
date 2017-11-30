@@ -4,8 +4,8 @@ import java.awt.event.*;
 
 public class Map extends JPanel{
   //adjustments between game and the field 2D array
-  final static int ROW_ADJUST = 8;
-  final static int COL_ADJUST = 6;
+  final static int ROW_ADJUST = 12;
+  final static int COL_ADJUST = 10;
 
   //directions
   final static int NONE = 0;
@@ -95,7 +95,7 @@ public class Map extends JPanel{
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         // check if block or floor
         try {
-          if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) { //denotes position of the player
+          if(i == (x*this.tileSize) && j == (y*this.tileSize)) { //denotes position of the player
             g.setColor(Color.BLACK);
             g.fillRect(i, j, this.tileSize, this.tileSize);
           }

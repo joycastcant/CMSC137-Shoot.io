@@ -7,7 +7,7 @@ public class Server extends Thread {
     private ArrayList<InetAddress> clientAddresses;
     private ArrayList<Integer> clientPorts;
     private HashMap<String, Integer> existingClients;
-    private ArrayList<Bomb> bombs;
+    private HashMap<Integer, Bomb> bombs;
 
     public Server(int port) throws IOException {
         this.socket = new DatagramSocket(port);
@@ -70,7 +70,7 @@ public class Server extends Thread {
     }
 
     public void generateBombs(int num) {
-        this.bombs = new ArrayList<Bomb>();
+        this.bombs = new HashMap<Integer, Bomb>();
         Random rand = new Random();
         int x,y;
         for(int i=0;i<num;i++) { // randomized position
@@ -78,13 +78,16 @@ public class Server extends Thread {
             x = rand.nextInt(Game.FIELD.length);
             y = rand.nextInt(Game.FIELD[0].length);
             } while(Game.FIELD[x][y] == 1);
-            this.bombs.add(new Bomb(x,y)); // instantiate bombs
+            this.bombs.put(this.bombs.size(), new Bomb(x,y)); // instantiate bombs
             // this.field[x][y] = 2;
         }
     }
 
     public void sendBombs(InetAddress addr, int port) {
-        byte[] data = GenSerial.serialize(this.bombs);
+        System.out.println("send bombs");
+        ArrayList<HashMap<Integer, Bomb>> daataa = new ArrayList<HashMap<Integer, Bomb>>();
+        daataa.add(this.bombs);
+        byte[] data = GenSerial.serialize(daataa);
         try{
             DatagramPacket packet = new DatagramPacket(data, data.length, addr, port);
             this.socket.send(packet);

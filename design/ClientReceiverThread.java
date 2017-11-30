@@ -22,13 +22,13 @@ public class ClientReceiverThread extends Thread {
                 
                 ArrayList<Object> re = (ArrayList<Object>) received;
                 
-                if(re.size() > 2) {
-                    System.out.println("BOMBS RECEIVED");
-                    ArrayList<Bomb> bms = (ArrayList<Bomb>) received;
-                    game.setBombs(bms);
+                if(re.size() == 1) {
+                    HashMap<Integer, Bomb> bms = (HashMap<Integer, Bomb>) re.get(0);
+                    System.out.println("BOMBS RECEIVED");;
+                    game.setBombs(bms, true);
                 } else {
-                    ArrayList<Bomb> bmbs = (ArrayList<Bomb>) re.get(0);
-                    game.setBombs(bmbs);
+                    HashMap<Integer, Bomb> bmbs = (HashMap<Integer, Bomb>) re.get(0);
+                    game.setBombs(bmbs, false);
                     Player pl = (Player) re.get(1);  //convert to player object
                     int[][] f = game.getField();
                     

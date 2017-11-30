@@ -38,6 +38,7 @@ public class Game extends JPanel implements KeyListener {
   private String port;
 
   private ArrayList<Bomb> bombs;
+  private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -209,10 +210,9 @@ public class Game extends JPanel implements KeyListener {
                 Bomb currBomb = this.bombs.get(k);
                 if(currBomb == null) break;
                 
-                
                 if(currBomb.isDead()) { // remove bomb if exploded
-                  this.field[this.bombs.get(0).getX()][this.bombs.get(0).getY()] = 0;
-                  this.bombs.remove(0);
+                  this.field[currBomb.getX()][currBomb.getY()] = 0;
+                  this.bombs.remove(k);
                 } else if(currBomb.getX() == x && currBomb.getY() == y) {
                   g.drawImage(currBomb.getImg().getTile(), i, j, this);
 
@@ -345,7 +345,7 @@ public class Game extends JPanel implements KeyListener {
     int nextY = 0;
 
     ArrayList<Object> data = new ArrayList<Object>();
-    data.add(this.bombs);
+    data.add(this.deadBombs);
     data.add(player);
     
     if( e.getKeyCode() == KeyEvent.VK_S) {
@@ -396,6 +396,7 @@ public class Game extends JPanel implements KeyListener {
     if( e.getKeyCode() == KeyEvent.VK_UP) {
       if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
+        this.deadBombs.put(0, this.bombs.get(0));
       }
     }
 
@@ -463,21 +464,28 @@ public class Game extends JPanel implements KeyListener {
     return this.field;
   }
 
-  public void setBombs(ArrayList<Bomb> bms) {
-    ArrayList<Bomb> newSet = new ArrayList<Bomb>();
-    Bomb sample = new Bomb(0, 0);
-  
-    for(int i = 0; i < bms.size(); i++) {
-      Bomb b = bms.get(i);
-      b.setTile(sample.getImg());
-      newSet.add(b);
-      int x = b.getX();
-      int y = b.getY();
-      this.field[x][y] = 2;
+  public void setBombs(HashMap<Integer, Bomb> bms, boolean initial) {
+    if(initial == true) {
+      this.bombs = new ArrayList<Bomb>();
+      for(int i = 0; i < bms.size(); i++) {
+        Bomb b = bms.get(i);
+        int x = b.getX();
+        int y = b.getY();
+        Bomb sample = new Bomb(0, 0);
+        b.setTile(sample.getImg());
+        this.bombs.add(b);
+        this.field[x][y] = 2;
+      }
+    } else if(initial == false) {
+      for(int i = 0; i < this.bombs.size(); i++) {
+        if(bms.containsKey(i)) {
+          Bomb b = this.bombs.get(i);
+          int x = b.getX();
+          int y = b.getY();
+          b.explode();
+          this.deadBombs.remove(i);
+        }
+      }
     }
-
-    this.bombs = newSet;
-    //completing newSet before giving the bombs to this.bombs is necessary
-      // so that the bombs won't ficker due to the continuous resetting
   }
 }

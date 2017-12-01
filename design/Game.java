@@ -38,7 +38,8 @@ public class Game extends JPanel implements KeyListener {
   private String port;
   private Map map;
 
-  private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
+  private ArrayList<Bomb> bombs;
+  private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -83,6 +84,33 @@ public class Game extends JPanel implements KeyListener {
                         {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
                         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
                     };
+    final static int[][] FIELD = {
+                        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+                    };
 
   public Game(int width, int height, int camX, int camY, String host, String port, String name) {
     this.width = field.length * this.tileSize;//width;
@@ -91,7 +119,7 @@ public class Game extends JPanel implements KeyListener {
     this.camY = camY;
     this.direction = NONE;
     this.setBackground(Color.black);
-    this.generateBombs(10);
+    // this.generateBombs(10);
     this.addKeyListener(this);
 
     this.host = host;
@@ -101,7 +129,7 @@ public class Game extends JPanel implements KeyListener {
     try {
       //change ip address according to your computer/network
 
-      this.client = new Client(this.host, this.port, this.field);
+      this.client = new Client(this.host, this.port, this);
       this.player =  new Player(this.name, this.field, this.client.getId());
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());
@@ -112,7 +140,8 @@ public class Game extends JPanel implements KeyListener {
     }
   }
 
-    public void generateBombs(int num) {
+/*   public void generateBombs(int num) {
+    this.bombs = new ArrayList<Bomb>();
     Random rand = new Random();
     int x,y;
     for(int i=0;i<num;i++) { // randomized position
@@ -123,7 +152,7 @@ public class Game extends JPanel implements KeyListener {
       this.bombs.add(new Bomb(x,y)); // instantiate bombs
       this.field[x][y] = 2;
     }
-  }
+  } */
 
   @Override
   public void paintComponent(Graphics g) {
@@ -172,47 +201,49 @@ public class Game extends JPanel implements KeyListener {
               g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
             
             else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
-              g.drawImage(this.floor.getTile(), i, j, this);
+              g.drawImage(this.floor.getTile(), i, j, this);         
 
           else { // IF FIELD CONTAINS -NO- BLOCK
             g.drawImage(this.floor.getTile(), i, j, this);
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
-
               // Check each bomb position
               for(int k=0;k<this.bombs.size();k++) {
-                if(this.bombs.get(k).isDead()) { // remove bomb if exploded
-                  this.field[this.bombs.get(0).getX()][this.bombs.get(0).getY()] = 0;
-                  this.bombs.remove(0);
-                } else if(this.bombs.get(k).getX() == x && this.bombs.get(k).getY() == y) {
-                  g.drawImage(this.bombs.get(k).getImg().getTile(), i, j, this);
+                Bomb currBomb = this.bombs.get(k);
+                if(currBomb == null) break;
+                
+                if(currBomb.isDead()) { // remove bomb if exploded
+                  this.field[currBomb.getX()][currBomb.getY()] = 0;
+                  this.bombs.remove(k);
+                } else if(currBomb.getX() == x && currBomb.getY() == y) {
+                  g.drawImage(currBomb.getImg().getTile(), i, j, this);
 
                   //------ Check explosion of bomb
 
                   //---- SOUTH
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
+                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
                       if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j+(l*this.tileSize)), this);
+                        g.drawImage(currBomb.getImg().getTile(), i, (j+(l*this.tileSize)), this);
                       } else break;
                   }
 
                   //---- NORTH
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
+                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
                       if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j-(l*this.tileSize)), this);
+                        g.drawImage(currBomb.getImg().getTile(), i, (j-(l*this.tileSize)), this);
                       } else break;
                   }
 
                   //---- EAST
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
+                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
                       if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), (i+(l*this.tileSize)), j, this);
+                        g.drawImage(currBomb.getImg().getTile(), (i+(l*this.tileSize)), j, this);
                       } else break;
                   }
 
                   //---- WEST
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
+                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
                       if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), (i-(l*this.tileSize)), j, this);
+                        g.drawImage(currBomb.getImg().getTile(), (i-(l*this.tileSize)), j, this);
                       } else break;
                   }
                 }
@@ -237,7 +268,7 @@ public class Game extends JPanel implements KeyListener {
 
   @Override
   public void keyPressed( KeyEvent e ){
-    
+
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {
       if(isInGame) {
         isInGame = false;
@@ -263,6 +294,10 @@ public class Game extends JPanel implements KeyListener {
     //this.direction = NONE;
     int nextX = 0;
     int nextY = 0;
+
+    ArrayList<Object> data = new ArrayList<Object>();
+    data.add(this.deadBombs);
+    data.add(player);
     
     if( e.getKeyCode() == KeyEvent.VK_S) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
@@ -271,8 +306,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(DOWN);
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
-        this.client.getSender().setData(player);
-        // this.map.setXY((this.camX), (this.camY + 11));
+        this.client.getSender().setData(data);
       }
       player.moveDown(field);
     }
@@ -283,8 +317,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(UP);
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
-        this.client.getSender().setData(player);
-        // this.map.setXY((this.camX), (this.camY - 11));
+        this.client.getSender().setData(data);
       }
       player.moveUp(field);
     }
@@ -295,8 +328,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(LEFT);
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
-        this.client.getSender().setData(player);
-        // this.map.setXY((this.camX - 11), (this.camY));
+        this.client.getSender().setData(data);
       }
       player.moveLeft(field);
     }
@@ -307,8 +339,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(RIGHT);
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
-        this.client.getSender().setData(player);
-        // this.map.setXY((this.camX + 11), (this.camY));
+        this.client.getSender().setData(data);
       }
       player.moveRight(field);
     }
@@ -320,6 +351,23 @@ public class Game extends JPanel implements KeyListener {
     if( e.getKeyCode() == KeyEvent.VK_UP) {
       if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
+        this.deadBombs.put(0, this.bombs.get(0));
+      }
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+      Object[] options = new Object[2];
+      options[0] = "YES";
+      options[1] = "NO";
+
+      JOptionPane escPane = new JOptionPane("Are you sure you want to exit?", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options);
+      
+      JDialog dialog = escPane.createDialog(null, "ShooterIO: Goodbye?");
+  
+      dialog.setVisible(true);
+  
+      if((escPane.getValue()).equals(options[0])) {
+          System.exit(0);
       }
     }
   }
@@ -370,4 +418,33 @@ public class Game extends JPanel implements KeyListener {
       System.out.println("Error has occured");
     }
   } */
+
+  public int[][] getField() {
+    return this.field;
+  }
+
+  public void setBombs(HashMap<Integer, Bomb> bms, boolean initial) {
+    if(initial == true) {
+      this.bombs = new ArrayList<Bomb>();
+      for(int i = 0; i < bms.size(); i++) {
+        Bomb b = bms.get(i);
+        int x = b.getX();
+        int y = b.getY();
+        Bomb sample = new Bomb(0, 0);
+        b.setTile(sample.getImg());
+        this.bombs.add(b);
+        this.field[x][y] = 2;
+      }
+    } else if(initial == false) {
+      for(int i = 0; i < this.bombs.size(); i++) {
+        if(bms.containsKey(i)) {
+          Bomb b = this.bombs.get(i);
+          int x = b.getX();
+          int y = b.getY();
+          b.explode();
+          this.deadBombs.remove(i);
+        }
+      }
+    }
+  }
 }

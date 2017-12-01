@@ -25,7 +25,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	final static int DIE = -500;
 	final static int DAMAGE = 20;
 
-	private String name;
+	protected String name;
 	private int hp;
 	private int points;
 	private int kills;
@@ -51,29 +51,6 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 			this.spawn(field);
 		this.id = id;
 	}
-
-	public byte[] serialize() {	//called by a player
-        try {
-			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
-			objectStream.writeObject(this);
-            return byteStream.toByteArray();
-        } catch(Exception e) {
-			System.out.println("Error in serialization");
-		}
-		return new byte[0];
-	}
-	
-	public static Object deserialize(byte[] data) {	//called as a static fxn
-        try{
-			ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-            ObjectInputStream objectStream = new ObjectInputStream(byteStream);
-			return objectStream.readObject();
-        } catch(Exception e) {
-			System.out.println("Error in deserialization");
-		}
-		return new Player();
-    }
 
 	public void setPoints(int action) {
 		this.points = this.points + action;

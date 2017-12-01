@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.io.*;
+import java.awt.AlphaComposite;
 
 public class Game extends JPanel implements KeyListener {
   // MultiThreadChatClient client;
@@ -16,6 +18,7 @@ public class Game extends JPanel implements KeyListener {
   final static int RIGHT = 2;
   final static int DOWN = 3;
   final static int LEFT = 4;
+  final static int MAXHP = 100;
 
   private int camX;
   private int camY;
@@ -37,9 +40,10 @@ public class Game extends JPanel implements KeyListener {
   private String host;
   private String port;
   private Map map;
-
-  private ArrayList<Bomb> bombs;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
+  private Font font;
+
+  private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -118,6 +122,7 @@ public class Game extends JPanel implements KeyListener {
     this.camX = camX;
     this.camY = camY;
     this.direction = NONE;
+    this.registerFont();
     this.setBackground(Color.black);
     // this.generateBombs(10);
     this.addKeyListener(this);
@@ -154,6 +159,15 @@ public class Game extends JPanel implements KeyListener {
     }
   } */
 
+  public void registerFont() {
+    GraphicsEnvironment ge = null;
+    try{
+      ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("resources/joystix.monospace.ttf")));
+    } catch(FontFormatException e){} catch (IOException e){} catch(NullPointerException e){}
+    this.font = new Font("Joystix Monospace", Font.PLAIN, 12);
+  }
+
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
@@ -172,6 +186,7 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
+
              switch (this.direction) {
               case UP:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
@@ -199,7 +214,7 @@ public class Game extends JPanel implements KeyListener {
 
             else if(field[x][y] == 5) // IF FIELD CONTAINS A PLAYER
               g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
-            
+
             else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
               g.drawImage(this.floor.getTile(), i, j, this);         
 
@@ -254,6 +269,24 @@ public class Game extends JPanel implements KeyListener {
       }
     }
 
+    //---- STATS
+    Graphics2D g2d = (Graphics2D)g;
+    g2d.setColor(Color.BLACK);
+
+    Composite originalComposite = g2d.getComposite();
+    AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
+
+    g2d.setComposite(alphaComposite);
+    g2d.setColor(Color.BLACK);
+    g2d.fillRect(200,575 ,700,30);
+    g2d.setComposite(originalComposite);
+
+    g.setFont(font);
+    g.setColor(Color.WHITE);
+    g.drawString("Health:   " + player.getHP() ,300,590);
+    g.drawString("Score:   " + 1000 ,480,590);
+    g.drawString("Kills:   " + player.getKills() ,660,590);
+
     setFocusable(true);
     if (this.isInGame) {
       requestFocus();
@@ -288,7 +321,7 @@ public class Game extends JPanel implements KeyListener {
     //   }
     // }
   }
-  
+
   @Override
   public void keyReleased(KeyEvent e) {
     //this.direction = NONE;
@@ -298,7 +331,7 @@ public class Game extends JPanel implements KeyListener {
     ArrayList<Object> data = new ArrayList<Object>();
     data.add(this.deadBombs);
     data.add(player);
-    
+
     if( e.getKeyCode() == KeyEvent.VK_S) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
       nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
@@ -397,7 +430,7 @@ public class Game extends JPanel implements KeyListener {
   public void setMessage(String m) {
     this.message = m;
   }
-  
+
   public void appendMsg(String msg) {
     this.chat.appendMessage(msg);
   }

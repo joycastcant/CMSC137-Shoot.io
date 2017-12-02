@@ -3,54 +3,43 @@ import java.net.*;
 import java.util.*;
 
 public class ClientReceiverThread extends Thread {
-    DatagramSocket sock;
-    byte buf[];
-    String received;
-    HashMap<String, Player> players = new HashMap<String, Player>();
-    int[][] field;
+    private DatagramSocket sock;
+    private byte buf[];
+    private Object received;
+    private Game game;
 
-    ClientReceiverThread(DatagramSocket s, int[][] f) {
+    ClientReceiverThread(DatagramSocket s, Game g) {
         sock = s;
         buf = new byte[1024];
-        field = f;
+        game = g;
     }
     public void run() {
         while (true) {
             try {               
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                System.out.println("receive");
                 sock.receive(packet);
-                received = new String(packet.getData(), 0, packet.getLength());
-                System.out.println("received: " + received);
+                received = GenSerial.deserialize(packet.getData());    //deserialize received object
                 
-                String[] pos = received.split(",");
-                String id = pos[0] + "," + pos[1];
-                Player p = new Player("", field, id);
-                if(players.containsKey(id)) {
-                    p = players.get(id);
-                    System.out.println("EXISTING :"+id);
+                ArrayList<Object> re = (ArrayList<Object>) received;
+                
+                if(re.size() == 1) {
+                    HashMap<Integer, Bomb> bms = (HashMap<Integer, Bomb>) re.get(0);
+                    System.out.println("BOMBS RECEIVED");;
+                    game.setBombs(bms, true);
                 } else {
-                    System.out.println("NEW: "+id);
-                    p = new Player("My Name", field, id);
-                    players.put(id, p);
+                    HashMap<Integer, Bomb> bmbs = (HashMap<Integer, Bomb>) re.get(0);
+                    game.setBombs(bmbs, false);
+                    Player pl = (Player) re.get(1);  //convert to player object
+                    game.addPlayer(pl);
+
+                    int[][] f = game.getField();
+                    
+                    f[pl.getPrevX()][pl.getPrevY()] = 0;
+                    if (pl.getDirection() == Game.DOWN || pl.getDirection() == Game.LEFT)
+                        f[pl.getPosX()][pl.getPosY()] = 5;
+                    else
+                        f[pl.getPosX()][pl.getPosY()] = 6;
                 }
-
-                // way too many players
-                field[Integer.parseInt(pos[4])][Integer.parseInt(pos[5])] = 0;
-                
-                // //blinking player
-                // for(int i=0; i<field.length; i++) {
-                //     for(int j=0; j<field[0].length; j++){
-                //         if(field[i][j] == 3 || field[i][j] == 4)
-                //             field[i][j] = 0;
-                //     }
-                // }
-
-                if (Integer.parseInt(pos[6]) == Game.DOWN || Integer.parseInt(pos[6]) == Game.LEFT)
-                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 5;
-                else
-                    field[Integer.parseInt(pos[2])][Integer.parseInt(pos[3])] = 6;
-                // System.out.println("AAA "+received);
             } catch(Exception e) {
                 // System.err.println(e);
             }

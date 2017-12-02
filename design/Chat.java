@@ -18,7 +18,7 @@ public class Chat extends JPanel implements KeyListener {
     private JTextArea chatWindow;
     private int chatCounter = 0;
     
-	public Chat(Container container, Game game) {
+	public Chat(Container container, Game game, String host, String port, String name) {
         super(new BorderLayout(), true);
 
         this.setPreferredSize(new Dimension(300, 200));
@@ -52,8 +52,10 @@ public class Chat extends JPanel implements KeyListener {
         this.add(s, BorderLayout.NORTH);
         this.add(inputField, BorderLayout.SOUTH);
         this.add(mainWindow, BorderLayout.CENTER);
+
+        int po = Integer.parseInt(port) + 1;
         
-        client = new MultiThreadChatClient("10.0.4.21", "2222", "Player1", this.game);
+        client = new MultiThreadChatClient(host, String.valueOf(po), name, this.game);
         clThread = new Thread(client);
     }
     @Override

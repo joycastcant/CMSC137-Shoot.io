@@ -41,9 +41,11 @@ public class Game extends JPanel implements KeyListener {
   private String port;
   private Map map;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
+  private HashMap<String, Player> players = new HashMap<String, Player>(); 
+      //hashmap is used for easier assurance of uniqueness
+  private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
   private Font font;
 
-  private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -314,6 +316,13 @@ public class Game extends JPanel implements KeyListener {
       }
     }
 
+    if( e.getKeyCode() == KeyEvent.VK_L) {  //show leaderboard. alter key
+      ArrayList<Player> pList = new ArrayList<>(this.players.values());
+      for(int i = 0; i < pList.size(); i++) {
+        System.out.println(pList.get(i).getName()); //prints the name of ith player
+      }
+    }
+
     // bomb
     // if( e.getKeyCode() == KeyEvent.VK_UP) {
     //   if(this.bombs.size()!=0) {
@@ -480,4 +489,9 @@ public class Game extends JPanel implements KeyListener {
       }
     }
   }
+
+  public void addPlayer(Player p) {
+    this.players.put(p.getId(), p); //player is always unique
+  }
+
 }

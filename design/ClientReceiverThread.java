@@ -30,6 +30,8 @@ public class ClientReceiverThread extends Thread {
                     HashMap<Integer, Bomb> bmbs = (HashMap<Integer, Bomb>) re.get(0);
                     game.setBombs(bmbs, false);
                     Player pl = (Player) re.get(1);  //convert to player object
+                    game.addPlayer(pl);
+
                     int[][] f = game.getField();
                     
                     f[pl.getPrevX()][pl.getPrevY()] = 0;

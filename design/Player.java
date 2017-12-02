@@ -25,7 +25,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	final static int DIE = -500;
 	final static int DAMAGE = 20;
 
-	protected String name;
+	private String name;
 	private int hp;
 	private int points;
 	private int kills;
@@ -157,6 +157,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		this.posY = y;
 		field[x][y] = 3;
 	}
+
 	public void die(int[][] field){
 		this.isDead = true;
 		field[this.posX][this.posY] = 0;
@@ -195,30 +196,43 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		}
 		return this.sprite;
 	}
+
 	public int getWidth() {
 		return this.sprite.getWidth();
 	}
+
 	public int getHeight() {
 		return this.sprite.getHeight();
 	}
+
 	public int getHP(){
 		return this.hp;
 	}
+
 	public int getPoints(){
 		return this.points;
 	}
+
 	public int getKills(){
 		return this.kills;
 	}
+
 	public boolean getStatus(){
 		return this.isDead;
 	}
+
 	public int getDirection() {
 		return this.direction;
 	}
+
 	public String getId() {
 		return this.id;
 	}
+
+	public String getName() {
+		return this.name;
+	}
+
 	public void setDirection(int dir) {
 		this.direction = dir;
 	}

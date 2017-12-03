@@ -1,6 +1,9 @@
 import java.io.Serializable;
 import java.util.TimerTask;
 import java.util.Timer;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class Bomb implements Serializable {
   private int xPos;
@@ -10,6 +13,8 @@ public class Bomb implements Serializable {
   private transient Timer timer;
   private int explosion; // current explosion range
   private int range;    // range of explosion
+  private boolean exploding;
+  private transient BufferedImage sprite;
 
   public Bomb(int xPos, int yPos) {
     this.xPos = xPos;
@@ -21,13 +26,18 @@ public class Bomb implements Serializable {
   }
 
   public void explode() {
+    this.exploding = true;
     int time;
     this.timer = new Timer();
-    this.timer.schedule(new BombTimer(this), 500, 200);
+    this.timer.schedule(new BombTimer(this), 200, 200);
   }
 
   public boolean isDead() {
     return this.dead;
+  }
+
+  public boolean isExploding() {
+    return this.exploding;
   }
 
   public void die() {
@@ -57,6 +67,15 @@ public class Bomb implements Serializable {
   public int getExplosion() {
     return this.explosion;
   }
+
+  public BufferedImage getSprite(String path) {
+		try{
+			this.sprite = ImageIO.read(this.getClass().getResourceAsStream(path));
+		}catch(IOException e){
+			e.getMessage();
+		}
+		return this.sprite;
+	}
 
   /*================
     BOMB TIMERTASK

@@ -28,7 +28,6 @@ public class Game extends JPanel implements KeyListener {
   private int tileSize = 50;
   private Tile block = new Tile("images/prison_platform.png");
   private Tile floor = new Tile("images/tile.png");
-  private Tile a = new Tile("images/a.png");
   private int direction;
   private Chat chat;
   private boolean isInGame = true;
@@ -41,7 +40,7 @@ public class Game extends JPanel implements KeyListener {
   private String port;
   private Map map;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
-  private HashMap<String, Player> players = new HashMap<String, Player>(); 
+  private HashMap<String, Player> players = new HashMap<String, Player>();
       //hashmap is used for easier assurance of uniqueness
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
   private Font font;
@@ -179,6 +178,8 @@ public class Game extends JPanel implements KeyListener {
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
     this.map.setPosition(this.player.getPosX(), this.player.getPosY());
+
+    // FOR TILES AND BLOCKS
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;
@@ -188,6 +189,23 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
+          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
+              g.drawImage(this.block.getTile(), i, j, this);
+            else // IF FIELD CONTAINS NOTHING
+              g.drawImage(this.floor.getTile(), i, j, this);
+        } catch(ArrayIndexOutOfBoundsException e) { }
+      }
+    }
+
+    // FOR PLAYERS AND BOMBS
+    for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
+      for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
+        x = sudoX/this.tileSize;
+        y = sudoY/this.tileSize;
+
+        // check if block or floor
+        try {
+          if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
 
              switch (this.direction) {
               case UP:
@@ -206,28 +224,19 @@ public class Game extends JPanel implements KeyListener {
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
             }
-            /* g.setColor(Color.BLACK);
-            g.fillRect(i, j, this.tileSize, this.tileSize); */
-          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
-              g.drawImage(this.block.getTile(), i, j, this);
-
-            else if(field[x][y] == 6) // IF FIELD CONTAINS A PLAYER
+          } else if(field[x][y] == 6) // IF FIELD CONTAINS A PLAYER
               g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
 
             else if(field[x][y] == 5) // IF FIELD CONTAINS A PLAYER
               g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
 
-            else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
-              g.drawImage(this.floor.getTile(), i, j, this);         
-
           else { // IF FIELD CONTAINS -NO- BLOCK
-            g.drawImage(this.floor.getTile(), i, j, this);
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
               // Check each bomb position
               for(int k=0;k<this.bombs.size();k++) {
                 Bomb currBomb = this.bombs.get(k);
                 if(currBomb == null) break;
-                
+
                 if(currBomb.isDead()) { // remove bomb if exploded
                   this.field[currBomb.getX()][currBomb.getY()] = 0;
                   this.bombs.remove(k);
@@ -235,39 +244,69 @@ public class Game extends JPanel implements KeyListener {
                   g.drawImage(currBomb.getImg().getTile(), i, j, this);
 
                   //------ Check explosion of bomb
+                  if(!currBomb.isExploding()) g.drawImage(currBomb.getImg().getTile(), i, j, this);
+                  else {
+                    g.drawImage(currBomb.getSprite("images/ex1.png"), i, j, this);
 
-                  //---- SOUTH
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), i, (j+(l*this.tileSize)), this);
-                      } else break;
+                    //---- SOUTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y+(l+1) > this.field[0].length && this.field[x][(y+(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                          else if( y+(l+1) < this.field[0].length && this.field[x][(y+(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- NORTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                          else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- EAST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                          else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                        } else break;
+                    }
+
+                    //---- WEST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                          else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                        } else break;
+                    }
                   }
 
-                  //---- NORTH
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), i, (j-(l*this.tileSize)), this);
-                      } else break;
-                  }
-
-                  //---- EAST
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), (i+(l*this.tileSize)), j, this);
-                      } else break;
-                  }
-
-                  //---- WEST
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), (i-(l*this.tileSize)), j, this);
-                      } else break;
-                  }
                 }
               }
             }
+            // for (Player p : players.values()) {
+            //   if(x == p.getPosX() && y == p.getPosX())
+            //     g.drawString(p.getName() ,i,j);
+            // }
           }
         } catch(ArrayIndexOutOfBoundsException e) { }
+        if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) g.drawString(player.getName() ,i,j);
       }
     }
 
@@ -280,7 +319,7 @@ public class Game extends JPanel implements KeyListener {
 
     g2d.setComposite(alphaComposite);
     g2d.setColor(Color.BLACK);
-    g2d.fillRect(200,575 ,700,30);
+    g2d.fillRect(0,575 ,800,30);
     g2d.setComposite(originalComposite);
 
     g.setFont(font);
@@ -387,7 +426,7 @@ public class Game extends JPanel implements KeyListener {
     }
 
     if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-      
+
     }
 
     if( e.getKeyCode() == KeyEvent.VK_UP) {
@@ -403,11 +442,11 @@ public class Game extends JPanel implements KeyListener {
       options[1] = "NO";
 
       JOptionPane escPane = new JOptionPane("Are you sure you want to exit?", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options);
-      
+
       JDialog dialog = escPane.createDialog(null, "ShooterIO: Goodbye?");
-  
+
       dialog.setVisible(true);
-  
+
       if((escPane.getValue()).equals(options[0])) {
           System.exit(0);
       }

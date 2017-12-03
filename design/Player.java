@@ -42,7 +42,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public Player() {
 
 	}
-	
+
 	public Player(String name, int[][] field, String id){
 		this.name = name;
 		this.points = 0;
@@ -55,7 +55,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public void setPoints(int action) {
 		this.points = this.points + action;
 	}
-		
+
 	public void moveUp(int[][] field){
 		if(!this.isDead){
 			if(this.posY > 0){
@@ -132,7 +132,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 			}
 		}
 	}
-	
+
 	public void run(){
 
 	}
@@ -143,7 +143,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	}
 	public void jump(){
 	}
-	
+
 	public void spawn(int[][] field){
 		this.hp = 150;
 		this.isDead = false;
@@ -164,14 +164,14 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		//timer task
 		this.spawn(field);
 	}
-	
+
 	public void takeDamage(int[][] field){
 		this.hp = this.hp - 15;
 		if(this.hp <= 0){
 			this.die(field);
 		}
 	}
-	
+
 	public int getPosX(){
 		return this.posX;
 	}

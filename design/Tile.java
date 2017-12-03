@@ -10,7 +10,6 @@ public class Tile implements Serializable{
     try {
       this.img = ImageIO.read(this.getClass().getResourceAsStream(path));
     } catch(IOException e) {
-      System.out.println("dasda");
     }
   }
 

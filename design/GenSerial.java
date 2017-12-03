@@ -29,6 +29,7 @@ public class GenSerial {
             return objectStream.readObject();
         } catch(Exception e) {
             System.out.println("Error in deserialization");
+            System.err.println(e);
         }
         return new ArrayList<Object>();
     }

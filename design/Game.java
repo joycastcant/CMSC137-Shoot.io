@@ -11,6 +11,7 @@ public class Game extends JPanel implements KeyListener {
   //adjustments between game and the field 2D array
   final static int ROW_ADJUST = 8;
   final static int COL_ADJUST = 6;
+  final static int TILE_SIZE = 50;
 
   //directions
   final static int NONE = 0;
@@ -28,7 +29,6 @@ public class Game extends JPanel implements KeyListener {
   private int tileSize = 50;
   private Tile block = new Tile("images/prison_platform.png");
   private Tile floor = new Tile("images/tile.png");
-  private Tile a = new Tile("images/a.png");
   private int direction;
   private Chat chat;
   private boolean isInGame = true;
@@ -41,7 +41,7 @@ public class Game extends JPanel implements KeyListener {
   private String port;
   private Map map;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
-  private HashMap<String, Player> players = new HashMap<String, Player>(); 
+  private HashMap<String, Player> players = new HashMap<String, Player>();
       //hashmap is used for easier assurance of uniqueness
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
   private Font font;
@@ -179,6 +179,8 @@ public class Game extends JPanel implements KeyListener {
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
     this.map.setPosition(this.player.getPosX(), this.player.getPosY());
+
+    // FOR TILES AND BLOCKS
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;
@@ -188,46 +190,62 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
+          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
+              g.drawImage(this.block.getTile(), i, j, this);
+            else // IF FIELD CONTAINS NOTHING
+              g.drawImage(this.floor.getTile(), i, j, this);
+        } catch(ArrayIndexOutOfBoundsException e) { }
+      }
+    }
+
+    // FOR PLAYERS AND BOMBS
+    for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
+      for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
+        x = sudoX/this.tileSize;
+        y = sudoY/this.tileSize;
+
+        // check if block or floor
+        try {
+          if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
+            this.player.getWeapon().setX(i);
+            this.player.getWeapon().setY(j);
 
              switch (this.direction) {
               case UP:
-                g.drawImage(player.getSprite(1, 1, 50, 50), i, j, 50, 50, null);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
               case RIGHT:
-                g.drawImage(player.getSprite(2, 1, 50, 50), i, j, 50, 50, null);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
               case DOWN:
-                g.drawImage(player.getSprite(3, 1, 50, 50), i, j, 50, 50, null);
+                g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
                 break;
               case LEFT:
-                g.drawImage(player.getSprite(1, 2, 50, 50), i, j, 50, 50, null);
+                g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
                 break;
               default:
-                g.drawImage(player.getSprite(2, 1, 50, 50), i, j, 50, 50, null);
+                g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
             }
-            /* g.setColor(Color.BLACK);
-            g.fillRect(i, j, this.tileSize, this.tileSize); */
-          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
-              g.drawImage(this.block.getTile(), i, j, this);
-
-            else if(field[x][y] == 6) // IF FIELD CONTAINS A PLAYER
-              g.drawImage(player.getSprite(3, 2, 50, 50), i, j, 50, 50, null);
-
-            else if(field[x][y] == 5) // IF FIELD CONTAINS A PLAYER
-              g.drawImage(player.getSprite(2, 3, 50, 50), i, j, 50, 50, null);
-
-            else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
-              g.drawImage(this.floor.getTile(), i, j, this);         
+          } else if(field[x][y] == 6)   {
+            Player p = this.getPlayerByPos(x, y);
+            p.getWeapon().setX(i);
+            p.getWeapon().setY(j);
+            g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+          } else if(field[x][y] == 5) {
+            Player p = this.getPlayerByPos(x, y);
+            p.getWeapon().setX(i);
+            p.getWeapon().setY(j);
+            g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+          }
 
           else { // IF FIELD CONTAINS -NO- BLOCK
-            g.drawImage(this.floor.getTile(), i, j, this);
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
               // Check each bomb position
               for(int k=0;k<this.bombs.size();k++) {
                 Bomb currBomb = this.bombs.get(k);
                 if(currBomb == null) break;
-                
+
                 if(currBomb.isDead()) { // remove bomb if exploded
                   this.field[currBomb.getX()][currBomb.getY()] = 0;
                   this.bombs.remove(k);
@@ -235,39 +253,69 @@ public class Game extends JPanel implements KeyListener {
                   g.drawImage(currBomb.getImg().getTile(), i, j, this);
 
                   //------ Check explosion of bomb
+                  if(!currBomb.isExploding()) g.drawImage(currBomb.getImg().getTile(), i, j, this);
+                  else {
+                    g.drawImage(currBomb.getSprite("images/ex1.png"), i, j, this);
 
-                  //---- SOUTH
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), i, (j+(l*this.tileSize)), this);
-                      } else break;
+                    //---- SOUTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y+(l+1) > this.field[0].length && this.field[x][(y+(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                          else if( y+(l+1) < this.field[0].length && this.field[x][(y+(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- NORTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                          else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- EAST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                          else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                        } else break;
+                    }
+
+                    //---- WEST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                          else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                        } else break;
+                    }
                   }
 
-                  //---- NORTH
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), i, (j-(l*this.tileSize)), this);
-                      } else break;
-                  }
-
-                  //---- EAST
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), (i+(l*this.tileSize)), j, this);
-                      } else break;
-                  }
-
-                  //---- WEST
-                  for(int l=1;l<currBomb.getExplosion()+1;l++) {
-                      if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
-                        g.drawImage(currBomb.getImg().getTile(), (i-(l*this.tileSize)), j, this);
-                      } else break;
-                  }
                 }
               }
             }
+            // for (Player p : players.values()) {
+            //   if(x == p.getPosX() && y == p.getPosX())
+            //     g.drawString(p.getName() ,i,j);
+            // }
           }
         } catch(ArrayIndexOutOfBoundsException e) { }
+        if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) g.drawString(player.getName() ,i,j);
       }
     }
 
@@ -280,7 +328,7 @@ public class Game extends JPanel implements KeyListener {
 
     g2d.setComposite(alphaComposite);
     g2d.setColor(Color.BLACK);
-    g2d.fillRect(200,575 ,700,30);
+    g2d.fillRect(0,575 ,800,30);
     g2d.setComposite(originalComposite);
 
     g.setFont(font);
@@ -289,12 +337,36 @@ public class Game extends JPanel implements KeyListener {
     g.drawString("Score:   " + 1000 ,480,590);
     g.drawString("Kills:   " + player.getKills() ,660,590);
 
+    //---- BULLETS
+    /* ArrayList<Bullet> bulletArray = this.player.getWeapon().getBullets();
+		for(int j = 0; j < bulletArray.size(); j++) {
+      Bullet bullet = bulletArray.get(j);
+      g2d.setColor(bullet.getColor());
+			g2d.fillRect(bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight());
+    } */
+
+    this.drawBullets(g2d);
+    
     setFocusable(true);
     if (this.isInGame) {
       requestFocus();
     }
+    this.updateBullets();
     this.repaint();
     this.revalidate();
+  }
+
+  public void drawBullets(Graphics2D g2d) {
+    ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
+
+    for(int i = 0; i < pList.size(); i++) {
+      ArrayList<Bullet> bulletArray = pList.get(i).getWeapon().getBullets();
+      for(int j = 0; j < bulletArray.size(); j++) {
+        Bullet bullet = bulletArray.get(j);
+        g2d.setColor(bullet.getColor());
+        g2d.fillRect(bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight());
+      }
+    }
   }
 
   /*==============
@@ -385,15 +457,18 @@ public class Game extends JPanel implements KeyListener {
       }
       player.moveRight(field);
     }
+
     if( e.getKeyCode() == KeyEvent.VK_Q) {
       this.player.switchWeapon();
     }
+
     if( e.getKeyCode() == KeyEvent.VK_E) {
       this.player.switchWeapon();
     }
 
-    if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-      
+    if( e.getKeyCode() == KeyEvent.VK_SPACE) {
+      System.out.println("SHOOT");
+      this.player.shoot();
     }
 
     if( e.getKeyCode() == KeyEvent.VK_UP) {
@@ -409,11 +484,11 @@ public class Game extends JPanel implements KeyListener {
       options[1] = "NO";
 
       JOptionPane escPane = new JOptionPane("Are you sure you want to exit?", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options);
-      
+
       JDialog dialog = escPane.createDialog(null, "ShooterIO: Goodbye?");
-  
+
       dialog.setVisible(true);
-  
+
       if((escPane.getValue()).equals(options[0])) {
           System.exit(0);
       }
@@ -500,4 +575,32 @@ public class Game extends JPanel implements KeyListener {
     this.players.put(p.getId(), p); //player is always unique
   }
 
+  private void updateBullets(){
+		ArrayList<Bullet> bulletArray = this.player.getWeapon().getBullets();
+
+		for(int i = 0; i < bulletArray.size(); i++){
+			bulletArray.get(i).move();
+    }
+    
+    /* ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
+    
+    for(int i = 0; i < pList.size(); i++) {
+      ArrayList<Bullet> bulletArray = pList.get(i).getWeapon().getBullets();
+      for(int j = 0; j < bulletArray.size(); j++) {
+        bulletArray.get(j).move();
+      }
+    } */
+	}
+
+  private Player getPlayerByPos(int x, int y) {
+    ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
+
+    for(int i = 0; i < pList.size(); i++) {
+      Player p = pList.get(i);
+
+      if(p.getPosX() == x && p.getPosY() == y) return p;
+    }
+
+    return this.player;
+  }
 }

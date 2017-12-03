@@ -38,12 +38,10 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	private int direction;
 	private transient BufferedImage sprite;	//marked as 'transient' bc BufferedImage does not implement Serializable
 	private String id;
-
-	public Player() {
-
-	}
 	
 	public Player(String name, int[][] field, String id, String path){
+
+	// public Player(String name, int[][] field, String id){
 		this.name = name;
 		this.points = 0;
 		this.kills = 0;
@@ -55,10 +53,10 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		}catch(IOException e){
 			e.getMessage();
 		}
-		this.setWeapon("PISTOL");
+		this.setWeapon(Weapon.PISTOL);
 	}
 	
-	public Player(String name, int[][] field, String id){
+	/* public Player(String name, int[][] field, String id){
 		this.name = name;
 		this.points = 0;
 		this.kills = 0;
@@ -66,12 +64,13 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 			this.spawn(field);
 		this.id = id;
 		this.setWeapon("PISTOL");
-	}
+	} */
 
 	public void setPoints(int action) {
 		this.points = this.points + action;
 	}
 		
+
 	public void moveUp(int[][] field){
 		if(!this.isDead){
 			if(this.posY > 0){
@@ -148,9 +147,13 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 			}
 		}
 	}
-	
-	public void run(){
 
+	public void run() {
+		while(true) {
+			try {
+				Thread.sleep(30);												
+			} catch(Exception e){}
+		}
 	}
 
 	public void shoot(){
@@ -168,7 +171,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		//after 1 sec
 		this.hp = realHp;
 	}
-	
+
 	public void spawn(int[][] field){
 		this.hp = 150;
 		this.isDead = false;
@@ -193,7 +196,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		}
 		this.spawn(field);
 	}
-	
+
 	public void takeDamage(int[][] field){
 		this.hp = this.hp - 15;
 		if(this.hp <= 0){
@@ -205,14 +208,15 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		this.weapon.changeType();
 	}
 	
-	public void setWeapon(String type){
-		this.weapon = new Weapon(type);
+	public void setWeapon(int type){
+		this.weapon = new Weapon(type, this.direction);
 	}
 	
 	public void switchWeapon(){
 		this.weapon.changeType();
 	}
 	
+
 	public int getPosX(){
 		return this.posX;
 	}
@@ -229,9 +233,16 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		return this.prevY;
 	}
 
-	public BufferedImage getSprite(int col, int row, int width, int height) {
+	/* public BufferedImage getSprite(int col, int row, int width, int height) {
 		BufferedImage img = this.sprite.getSubimage((col * 50) - 50, (row * 50) - 50, width, height);
-		return img;
+		return img; */
+	public BufferedImage getSprite(String path) {
+		try{
+			this.sprite = ImageIO.read(this.getClass().getResourceAsStream(path));
+		}catch(IOException e){
+			e.getMessage();
+		}
+		return this.sprite;
 	}
 
 	public int getWidth() {
@@ -270,7 +281,12 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		return this.name;
 	}
 
+	public Weapon getWeapon() {
+		return this.weapon;
+	}
+ 
 	public void setDirection(int dir) {
 		this.direction = dir;
+		this.weapon.setDirection(dir);
 	}
 }

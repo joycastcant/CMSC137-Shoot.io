@@ -24,23 +24,28 @@ public class Chat extends JPanel implements KeyListener {
         this.setPreferredSize(new Dimension(300, 200));
         this.requestFocusInWindow();
         this.game = game;
-        
+
         this.container = container;
         Font def = new Font("Default", Font.BOLD, 20);
-        
+
         JPanel mainWindow = new JPanel();
 
         // mainWindow.setLayout(new BoxLayout(con, BoxLayout.PAGE_AXIS));
-        mainWindow.setBackground(new Color(250, 250, 250, 70));
-        this.setBackground(new Color(250, 250, 250, 70));
+        mainWindow.setBackground(new Color(0, 0, 0, 0));
+        this.setBackground(new Color(0, 0, 0, 0));
         // mainWindow.setOpacity()
 
-        chatWindow = new JTextArea(11, 1);
+        this.chatWindow = new JTextArea(11, 1);
+        this.chatWindow.setBackground(new Color(0,0,0,80)); // output background color
+        this.chatWindow.setForeground(Color.WHITE); // output font color
 
         JScrollPane s = new JScrollPane();
+        s.setBackground(new Color(0,0,0,0));
         s.setViewportView(chatWindow);
         JPanel inputField = new JPanel();
         this.inputMsg = new JTextField(23);
+        this.inputMsg.setBackground(new Color(0,0,0,40)); // input background color
+        this.chatWindow.setForeground(Color.WHITE); // input font color
         this.inputMsg.setEditable(true);
         this.inputMsg.setEnabled(true);
         this.inputMsg.addKeyListener(this);
@@ -48,6 +53,8 @@ public class Chat extends JPanel implements KeyListener {
             this.inputMsg.requestFocus();
         }
         inputField.add(inputMsg);
+        inputField.setBackground(new Color(0,0,0,0));
+
 
         this.add(s, BorderLayout.NORTH);
         this.add(inputField, BorderLayout.SOUTH);

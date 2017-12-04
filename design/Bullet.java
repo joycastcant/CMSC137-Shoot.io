@@ -12,13 +12,15 @@ public class Bullet implements Serializable {
 	private int height;
     private int direction;
     private Color color;
-	private boolean visibility;
+    private boolean visibility;
+    protected boolean isMoving;
 
 	public Bullet(int type, int posX, int posY, int direction) {
         this.type = type;
         this.posX = posX;
         this.posY = posY;
         this.direction = direction;
+        this.isMoving = false;
 
         if(this.type == Weapon.SHOTGUN)
             this.color = Color.BLACK;
@@ -51,14 +53,22 @@ public class Bullet implements Serializable {
                 this.posX += OFFSET;
                 break;
         }
-        
-        System.out.println("X: " + this.posX + "\nY: " + this.posY);
+
+        // System.out.println("MOVE-x: " + this.posX + "\nMOVE-y: " + this.posY);
     }
 
     //getters
     public int getType() {
         return this.type;
     }
+
+    public void setX(int x) {
+		this.posX = x;
+	}
+
+	public void setY(int y) {
+		this.posY = y;
+	}
 
 	public int getX() {
 		return this.posX;

@@ -24,21 +24,27 @@ public class ClientReceiverThread extends Thread {
                 
                 if(re.size() == 1) {
                     HashMap<Integer, Bomb> bms = (HashMap<Integer, Bomb>) re.get(0);
-                    System.out.println("BOMBS RECEIVED");;
+                    System.out.println("BOMBS RECEIVED");
                     game.setBombs(bms, true);
-                } else {
+                } else if(re.size() == 2) {
                     HashMap<Integer, Bomb> bmbs = (HashMap<Integer, Bomb>) re.get(0);
                     game.setBombs(bmbs, false);
                     Player pl = (Player) re.get(1);  //convert to player object
+                    
+                    int x = pl.getPosX();
+                    int y = pl.getPosY();
+
+                   /*  pl.getWeapon().setX((Game.ROW_ADJUST + (x - game.getPlayer().getPosX())) * 50);
+                    pl.getWeapon().setY((Game.COL_ADJUST + (y - game.getPlayer().getPosY())) * 50); */
                     game.addPlayer(pl);
 
                     int[][] f = game.getField();
                     
                     f[pl.getPrevX()][pl.getPrevY()] = 0;
                     if (pl.getDirection() == Game.DOWN || pl.getDirection() == Game.LEFT)
-                        f[pl.getPosX()][pl.getPosY()] = 5;
+                        f[x][y] = 5;
                     else
-                        f[pl.getPosX()][pl.getPosY()] = 6;
+                        f[x][y] = 6;
                 }
             } catch(Exception e) {
                 // System.err.println(e);

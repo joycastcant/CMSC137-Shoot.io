@@ -1,5 +1,7 @@
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -30,7 +32,8 @@ public class GenSerial {
         } catch(Exception e) {
             System.out.println("Error in deserialization");
             System.err.println(e);
+            e.printStackTrace(); 
         }
-        return new ArrayList<Object>();
+        return new Object();
     }
 }

@@ -42,7 +42,6 @@ public class Game extends JPanel implements KeyListener {
   private Map map;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
   private HashMap<String, Player> players = new HashMap<String, Player>();
-      //hashmap is used for easier assurance of uniqueness
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
   private Font font;
 
@@ -126,7 +125,6 @@ public class Game extends JPanel implements KeyListener {
     this.direction = NONE;
     this.registerFont();
     this.setBackground(Color.black);
-    // this.generateBombs(10);
     this.addKeyListener(this);
 
     this.host = host;
@@ -134,8 +132,6 @@ public class Game extends JPanel implements KeyListener {
     this.name = name;
 
     try {
-      //change ip address according to your computer/network
-
       this.client = new Client(this.host, this.port, this);
       this.player =  new Player(this.name, this.field, this.client.getId(), "images/player.png");
       Thread receiver = new Thread(this.client.getReceiver());
@@ -146,20 +142,6 @@ public class Game extends JPanel implements KeyListener {
       System.err.println(e);
     }
   }
-
-/*   public void generateBombs(int num) {
-    this.bombs = new ArrayList<Bomb>();
-    Random rand = new Random();
-    int x,y;
-    for(int i=0;i<num;i++) { // randomized position
-      do{
-        x = rand.nextInt(this.field.length);
-        y = rand.nextInt(this.field[0].length);
-      } while(this.field[x][y] == 1);
-      this.bombs.add(new Bomb(x,y)); // instantiate bombs
-      this.field[x][y] = 2;
-    }
-  } */
 
   public void registerFont() {
     GraphicsEnvironment ge = null;
@@ -209,6 +191,7 @@ public class Game extends JPanel implements KeyListener {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
             this.player.getWeapon().setX(i);
             this.player.getWeapon().setY(j);
+            this.updateBullets(this.player);
 
              switch (this.direction) {
               case UP:
@@ -229,13 +212,17 @@ public class Game extends JPanel implements KeyListener {
             }
           } else if(field[x][y] == 6)   {
             Player p = this.getPlayerByPos(x, y);
+            System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
+            this.updateBullets(p);
             g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
           } else if(field[x][y] == 5) {
             Player p = this.getPlayerByPos(x, y);
+            System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
+            this.updateBullets(p);
             g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
           }
 
@@ -351,18 +338,20 @@ public class Game extends JPanel implements KeyListener {
     if (this.isInGame) {
       requestFocus();
     }
-    this.updateBullets();
+    // this.updateBullets();
     this.repaint();
     this.revalidate();
   }
 
   public void drawBullets(Graphics2D g2d) {
     ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
-
     for(int i = 0; i < pList.size(); i++) {
-      ArrayList<Bullet> bulletArray = pList.get(i).getWeapon().getBullets();
+      Player p = pList.get(i);
+
+      ArrayList<Bullet> bulletArray = p.getWeapon().getBullets();
       for(int j = 0; j < bulletArray.size(); j++) {
         Bullet bullet = bulletArray.get(j);
+        // System.out.println("bullet-x: " + bullet.getX() + "\nbullet-y: " + bullet.getY());
         g2d.setColor(bullet.getColor());
         g2d.fillRect(bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight());
       }
@@ -529,19 +518,6 @@ public class Game extends JPanel implements KeyListener {
     this.map = map;
   }
 
-  /* public void setWaitThread(){
-    this.pauseThread();
-  }
-  private void pauseThread(){
-    try{
-      if(this.clThread.isAlive()){
-        this.clThread.wait();
-      }
-    } catch(Exception e) {
-      System.out.println("Error has occured");
-    }
-  } */
-
   public int[][] getField() {
     return this.field;
   }
@@ -575,32 +551,37 @@ public class Game extends JPanel implements KeyListener {
     this.players.put(p.getId(), p); //player is always unique
   }
 
-  private void updateBullets(){
-		ArrayList<Bullet> bulletArray = this.player.getWeapon().getBullets();
+  private void updateBullets(Player p){
+		ArrayList<Bullet> bulletArray = p.getWeapon().getBullets();
 
 		for(int i = 0; i < bulletArray.size(); i++){
 			bulletArray.get(i).move();
     }
-    
-    /* ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
-    
-    for(int i = 0; i < pList.size(); i++) {
-      ArrayList<Bullet> bulletArray = pList.get(i).getWeapon().getBullets();
-      for(int j = 0; j < bulletArray.size(); j++) {
-        bulletArray.get(j).move();
-      }
-    } */
 	}
 
   private Player getPlayerByPos(int x, int y) {
     ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
-
     for(int i = 0; i < pList.size(); i++) {
       Player p = pList.get(i);
 
       if(p.getPosX() == x && p.getPosY() == y) return p;
     }
 
+    return this.player;
+  }
+
+  private void updatePlayers() {  
+    ArrayList<Player> pList = new ArrayList<Player>();  
+    for(int i = 0; i < pList.size(); i++) {
+      Player pl = pList.get(i);
+      System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + pl.getName());
+      System.out.println("PUCHA" + (ROW_ADJUST + (pl.getPosX() - this.player.getPosX())) * 50);
+      pl.getWeapon().setX((ROW_ADJUST + (pl.getPosX() - this.player.getPosX())) * 50);
+      pl.getWeapon().setY((COL_ADJUST + (pl.getPosY() - this.player.getPosY())) * 50);
+    }
+  }
+
+  public Player getPlayer() {
     return this.player;
   }
 }

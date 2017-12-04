@@ -59,15 +59,19 @@ public class Weapon implements Serializable {
 	}
 	
 	public void fire() {
+		Bullet b = new Bullet(0, 0, 0, 0);
 		if(this.direction == Game.RIGHT) {
-			this.bullets.add(new Bullet(this.type, this.playerX + Game.TILE_SIZE, this.playerY + Game.TILE_SIZE / 2, this.direction));
-		}else if(this.direction == Game.LEFT) {
-			this.bullets.add(new Bullet(this.type, this.playerX, this.playerY + Game.TILE_SIZE / 2, this.direction));
-		}else if(this.direction == Game.UP) {
-			this.bullets.add(new Bullet(this.type, this.playerX + Game.TILE_SIZE / 2, this.playerY, this.direction));
-		}else if(this.direction == Game.DOWN) {
-			this.bullets.add(new Bullet(this.type, this.playerX + Game.TILE_SIZE / 2, this.playerY + Game.TILE_SIZE, this.direction));
+			b = new Bullet(this.type, this.playerX + Game.TILE_SIZE, this.playerY + Game.TILE_SIZE / 2, this.direction);
+		} else if(this.direction == Game.LEFT) {
+			b = new Bullet(this.type, this.playerX, this.playerY + Game.TILE_SIZE / 2, this.direction);
+		} else if(this.direction == Game.UP) {
+			b = new Bullet(this.type, this.playerX + Game.TILE_SIZE / 2, this.playerY, this.direction);
+		} else if(this.direction == Game.DOWN) {
+			b = new Bullet(this.type, this.playerX + Game.TILE_SIZE / 2, this.playerY + Game.TILE_SIZE, this.direction);
 		}
+
+		b.isMoving = true;
+		this.bullets.add(b);
 	}
 	
 	/*public BufferedImage getSprite(int col, int row, int width, int height) {
@@ -81,12 +85,49 @@ public class Weapon implements Serializable {
 
 	public void setX(int x) {
 		this.playerX = x;
+
+		for(int i = 0; i < this.bullets.size(); i++) {
+			Bullet bullet = this.bullets.get(i);
+			if(!bullet.isMoving) {
+				if(this.direction == Game.RIGHT)
+					bullet.setX(x + Game.TILE_SIZE);
+				else if(this.direction == Game.LEFT)
+					bullet.setX(x);
+				else if(this.direction == Game.UP || this.direction == Game.DOWN)
+					bullet.setX(x + Game.TILE_SIZE / 2);
+	
+				System.out.println("\n X: " + this.getX());
+			}
+
+		}
 	}
 
 	public void setY(int y) {
 		this.playerY = y;
-	}
+
+		for(int i = 0; i < this.bullets.size(); i++) {
+			Bullet bullet = this.bullets.get(i);
+			if(!bullet.isMoving) {
+				if(this.direction == Game.RIGHT || this.direction == Game.LEFT)
+					bullet.setY(y + Game.TILE_SIZE / 2);
+				else if(this.direction == Game.UP)
+					bullet.setY(y);
+				else if(this.direction == Game.UP)
+					bullet.setY(y + Game.TILE_SIZE);
 	
+				System.out.println("\n Y: " + this.getY());
+			}
+		}
+	}
+
+	public int getX()  {
+		return this.playerX;
+	}
+
+	public int getY()  {
+		return this.playerY;
+	}
+
 	public int getType()  {
 		return this.type;
 	}

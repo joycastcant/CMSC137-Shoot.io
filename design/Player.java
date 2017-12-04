@@ -289,4 +289,8 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		this.direction = dir;
 		this.weapon.setDirection(dir);
 	}
+
+	public Rectangle getBounds(){
+		return new Rectangle(this.posX, this.posY, 50, 50);
+	}
 }

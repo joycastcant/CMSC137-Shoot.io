@@ -1,4 +1,4 @@
-import java.awt.Color;
+import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -53,7 +53,6 @@ public class Bullet implements Serializable {
                 this.posX += OFFSET;
                 break;
         }
-
         // System.out.println("MOVE-x: " + this.posX + "\nMOVE-y: " + this.posY);
     }
 
@@ -105,4 +104,13 @@ public class Bullet implements Serializable {
 	public void setVisible(Boolean visible) {
 		this.visibility = visible;
 	}
+
+    public int returnOffset() {
+        return this.OFFSET;
+    }
+
+    // public Rectangle getBounds() {
+    //     Rectangle rect = new Rectangle(this.posX, this.posY, this.width, this.height);
+    //     return rect
+    // }
 }

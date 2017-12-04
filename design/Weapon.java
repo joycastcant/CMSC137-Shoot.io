@@ -112,7 +112,7 @@ public class Weapon implements Serializable {
 					bullet.setY(y + Game.TILE_SIZE / 2);
 				else if(this.direction == Game.UP)
 					bullet.setY(y);
-				else if(this.direction == Game.UP)
+				else if(this.direction == Game.DOWN)
 					bullet.setY(y + Game.TILE_SIZE);
 	
 				System.out.println("\n Y: " + this.getY());
@@ -120,6 +120,42 @@ public class Weapon implements Serializable {
 		}
 	}
 
+	public void setXMoving(int x) {
+		this.playerX = x;
+
+		for(int i = 0; i < this.bullets.size(); i++) {
+			Bullet bullet = this.bullets.get(i);
+			if(bullet.isMoving) {
+				// if(this.direction == Game.RIGHT)
+				// 	bullet.setX(bullet.getX() + x);
+				// else if(this.direction == Game.LEFT)
+				// 	bullet.setX(bullet.getX());
+				// else if(this.direction == Game.UP || this.direction == Game.DOWN)
+				// 	bullet.setX(bullet.getX() + x);
+				bullet.setX(bullet.getX() + x);
+				System.out.println("\n X: " + this.getX());
+			}
+
+		}
+	}
+
+	public void setYMoving(int y) {
+		this.playerY = y;
+
+		for(int i = 0; i < this.bullets.size(); i++) {
+			Bullet bullet = this.bullets.get(i);
+			if(bullet.isMoving) {
+				// if(this.direction == Game.RIGHT || this.direction == Game.LEFT)
+				// 	bullet.setY(bullet.getY() + y);
+				// else if(this.direction == Game.UP)
+				// 	bullet.setY(bullet.getY());
+				// else if(this.direction == Game.DOWN)
+				// 	bullet.setY(bullet.getY() + y);
+				bullet.setY(bullet.getY()+y);
+				System.out.println("\n Y: " + this.getY());
+			}
+		}
+	}
 	public int getX()  {
 		return this.playerX;
 	}

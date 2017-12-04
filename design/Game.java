@@ -25,6 +25,8 @@ public class Game extends JPanel implements KeyListener {
   private int camY;
   private int height;
   private int width;
+  private int tileShooktX;
+  private int tileShooktY;
   private int offSet = 50;
   private int tileSize = 50;
   private Tile block = new Tile("images/prison_platform.png");
@@ -161,8 +163,7 @@ public class Game extends JPanel implements KeyListener {
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
     this.map.setPosition(this.player.getPosX(), this.player.getPosY());
-
-    // FOR TILES AND BLOCKS
+    // FOR TILES AND blocks
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;
@@ -179,6 +180,8 @@ public class Game extends JPanel implements KeyListener {
         } catch(ArrayIndexOutOfBoundsException e) { }
       }
     }
+    // System.out.println("POSX: " + this.player.getPosX());
+    // System.out.println("POSY: " + this.player.getPosY());
 
     // FOR PLAYERS AND BOMBS
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
@@ -191,7 +194,11 @@ public class Game extends JPanel implements KeyListener {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
             this.player.getWeapon().setX(i);
             this.player.getWeapon().setY(j);
-            this.updateBullets(this.player);
+            if(player.getWeapon().getBullets().size() > 0){
+              this.updateBullets(this.player, g);
+            }  
+              // this.player.getWeapon().setX(i);
+              // this.player.getWeapon().setY(j);
 
              switch (this.direction) {
               case UP:
@@ -215,24 +222,31 @@ public class Game extends JPanel implements KeyListener {
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
-            this.updateBullets(p);
+            this.updateBullets(p, g);
             g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
           } else if(field[x][y] == 5) {
             Player p = this.getPlayerByPos(x, y);
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
-            this.updateBullets(p);
+            this.updateBullets(p, g);
             g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
           }
 
           else { // IF FIELD CONTAINS -NO- BLOCK
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
               // Check each bomb position
+              Rectangle br = new Rectangle(i, j, 55, 55);
+              Graphics2D g2 = (Graphics2D)g;
+              g2.fillRect(i, j, 55, 55);
+              // ArrayList<Bullet> bulletArray = player.getWeapon().getBullets(); 
+              // for(int bulIter = 0; bulIter < bulletArray.size(); bulIter++){
+              //   Rectangle bull = new Rectangle(bulletArray.get(bulIter).getX(), )
+              // }
               for(int k=0;k<this.bombs.size();k++) {
                 Bomb currBomb = this.bombs.get(k);
                 if(currBomb == null) break;
-
+                currBomb.setRectangle(br);
                 if(currBomb.isDead()) { // remove bomb if exploded
                   this.field[currBomb.getX()][currBomb.getY()] = 0;
                   this.bombs.remove(k);
@@ -409,6 +423,11 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(DOWN);
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
+        // ArrayList<Bullet> b = player.getWeapon().getBullets();
+        // for(int i = 0; i < b.size(); i++) {
+        //   // player.getWeapon().setXMoving(this.tileShooktX + 50);
+        //   player.getWeapon().setYMoving(-50);
+        // }
         this.client.getSender().setData(data);
       }
       player.moveDown(field);
@@ -420,6 +439,11 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(UP);
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
+        // ArrayList<Bullet> b = player.getWeapon().getBullets();
+        // for(int i = 0; i < b.size(); i++) {
+        //   // player.getWeapon().setXMoving(this.tileShooktX + 50);
+        //   player.getWeapon().setYMoving(50);
+        // }
         this.client.getSender().setData(data);
       }
       player.moveUp(field);
@@ -431,6 +455,11 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(LEFT);
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
+        // ArrayList<Bullet> b = player.getWeapon().getBullets();
+        // for(int i = 0; i < b.size(); i++) {
+        //   player.getWeapon().setXMoving(50);
+        //   // player.getWeapon().setYMoving(this.tileShooktY + 50);
+        // }
         this.client.getSender().setData(data);
       }
       player.moveLeft(field);
@@ -442,6 +471,11 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(RIGHT);
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
+        // ArrayList<Bullet> b = player.getWeapon().getBullets();
+        // for(int i = 0; i < b.size(); i++) {
+        //   player.getWeapon().setXMoving(-50);
+        //   // player.getWeapon().setYMoving(this.tileShooktY + 50);
+        // }
         this.client.getSender().setData(data);
       }
       player.moveRight(field);
@@ -551,13 +585,40 @@ public class Game extends JPanel implements KeyListener {
     this.players.put(p.getId(), p); //player is always unique
   }
 
-  private void updateBullets(Player p){
+  private void updateBullets(Player p, Graphics g){
 		ArrayList<Bullet> bulletArray = p.getWeapon().getBullets();
+
+    Graphics2D g2 = (Graphics2D)g;
+    g2.setColor(Color.PINK);
 
 		for(int i = 0; i < bulletArray.size(); i++){
 			bulletArray.get(i).move();
+      Rectangle bull = new Rectangle(bulletArray.get(i).getX(), bulletArray.get(i).getY(), bulletArray.get(i).getWidth() + 5, bulletArray.get(i).getHeight() + 5);
+      g2.fillRect(bulletArray.get(i).getX(), bulletArray.get(i).getY(), bulletArray.get(i).getWidth() + 5, bulletArray.get(i).getHeight() + 5);
+      // for(int j = 0; j < players.size(); j++){
+      //   // if(bulletArray.get(i).getBounds().intersects(players.get(j).getBounds())){
+      //   //   System.out.println("HiT!");
+      //   // }
+      // }
+
+      for(int j = 0; j < bombs.size(); j++){
+        // Rectangle bomRect = bombs.get(j).getRectangle();
+        // g2.fillRect(bombs.get(j).getX()*50, bombs.get(j).getY()*50, 55, 55);
+        if(bull.intersects(bombs.get(j).getRectangle())){
+          bulletArray.remove(bulletArray.get(i));
+          bombs.get(j).explode();
+          System.out.println("SHIT");
+          break;
+        }
+      }
     }
 	}
+
+  private boolean bombWillCollide(Rectangle bomb, Rectangle bullet){
+    if(bomb.intersects(bullet))
+      return true;
+    return false;
+  }
 
   private Player getPlayerByPos(int x, int y) {
     ArrayList<Player> pList = new ArrayList<Player>(this.players.values());

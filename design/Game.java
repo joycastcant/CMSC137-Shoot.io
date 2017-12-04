@@ -5,7 +5,7 @@ import java.util.*;
 import java.io.*;
 import java.awt.AlphaComposite;
 
-public class Game extends JPanel implements KeyListener {
+public class Game extends JPanel implements KeyListener, MouseListener {
   // MultiThreadChatClient client;
   Client client;
   //adjustments between game and the field 2D array
@@ -126,6 +126,7 @@ public class Game extends JPanel implements KeyListener {
     this.registerFont();
     this.setBackground(Color.black);
     this.addKeyListener(this);
+    this.addMouseListener(this);
 
     this.host = host;
     this.port = port;
@@ -196,20 +197,69 @@ public class Game extends JPanel implements KeyListener {
              switch (this.direction) {
               case UP:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1; l<=2; l++) {
+                    if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                      if ( l == player.getFlame() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<=2))
+                        g.drawImage(player.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                      else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                        g.drawImage(player.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                      else
+                        g.drawImage(player.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                    } else break;
+                  }
+                }
                 break;
               case RIGHT:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                        if ( l == player.getFlame() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                        else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                          g.drawImage(player.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                      } else break;
+                  }
+                }
                 break;
               case DOWN:
                 g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( y+l > -1 && this.field[x][(y+l)] != 1 ) {
+                        if ( l == player.getFlame() || (y+(l+1) > this.field.length && this.field[x][(y+(l+1))] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                        else if( y+(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                          g.drawImage(player.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                      } else break;
+                  }
+                }
                 break;
               case LEFT:
                 g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                        if ( l == player.getFlame() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                        else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                          g.drawImage(player.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                      } else break;
+                  }
+                }
                 break;
               default:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
             }
+
           } else if(field[x][y] == 6)   {
             Player p = this.getPlayerByPos(x, y);
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
@@ -642,4 +692,16 @@ public class Game extends JPanel implements KeyListener {
   public Player getPlayer() {
     return this.player;
   }
+
+  /*================
+    MOUSELISTENERS
+  =================*/
+
+  public void mouseClicked(MouseEvent e) {
+    this.player.shoot2();
+  }
+  public void mouseEntered(MouseEvent e) {}
+  public void mouseExited(MouseEvent e) {}
+  public void mousePressed(MouseEvent e) {}
+  public void mouseReleased(MouseEvent e) {}
 }

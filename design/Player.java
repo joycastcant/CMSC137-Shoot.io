@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
+import java.util.TimerTask;
+import java.util.Timer;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
@@ -25,6 +27,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	final static int DIE = -500;
 	final static int DAMAGE = 20;
 
+	private transient Timer timer;
 	private String name;
 	private int hp;
 	private int points;
@@ -38,13 +41,17 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	private int direction;
 	private transient BufferedImage sprite;	//marked as 'transient' bc BufferedImage does not implement Serializable
 	private String id;
-	
+	private int flame;
+	private boolean shooting;
+
 	public Player(String name, int[][] field, String id, String path){
 
 	// public Player(String name, int[][] field, String id){
 		this.name = name;
 		this.points = 0;
 		this.kills = 0;
+		this.flame = 0;
+		this.shooting = false;
 		if (!this.name.equals(""))
 			this.spawn(field);
 		this.id = id;
@@ -55,7 +62,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		}
 		this.setWeapon(Weapon.PISTOL);
 	}
-	
+
 	/* public Player(String name, int[][] field, String id){
 		this.name = name;
 		this.points = 0;
@@ -69,7 +76,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public void setPoints(int action) {
 		this.points = this.points + action;
 	}
-		
+
 
 	public void moveUp(int[][] field){
 		if(!this.isDead){
@@ -151,7 +158,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public void run() {
 		while(true) {
 			try {
-				Thread.sleep(30);												
+				Thread.sleep(30);
 			} catch(Exception e){}
 		}
 	}
@@ -159,7 +166,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public void shoot(){
 		this.weapon.fire();
 	}
-	
+
 	public void invulnerable(){
 		//timertask 3 seconds
 		this.hp = 9999999;
@@ -203,19 +210,22 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 			this.die(field);
 		}
 	}
-	
+
 	public void changeWeapon(){
 		this.weapon.changeType();
 	}
-	
+
 	public void setWeapon(int type){
 		this.weapon = new Weapon(type, this.direction);
 	}
-	
+
 	public void switchWeapon(){
 		this.weapon.changeType();
 	}
-	
+
+	public boolean isShooting() {
+		return this.shooting;
+	}
 
 	public int getPosX(){
 		return this.posX;
@@ -284,9 +294,42 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	public Weapon getWeapon() {
 		return this.weapon;
 	}
- 
+
 	public void setDirection(int dir) {
 		this.direction = dir;
 		this.weapon.setDirection(dir);
 	}
+
+	public int getFlame() {
+		return this.flame;
+	}
+
+	public void shoot2() {
+		this.shooting = true;
+		int time;
+    this.timer = new Timer();
+    this.timer.schedule(new FlameTimer(this), 0, 100);
+	}
+
+	private class FlameTimer extends TimerTask {
+    private Player player;
+    private int time;
+
+    public FlameTimer(Player player) {
+      this.player = player;
+      this.time = 0;
+    }
+
+    @Override
+    public void run() {
+      this.time++;
+      if(this.time >= 2) {
+        this.player.shooting = false;
+				this.player.flame = 0;
+        this.player.timer.cancel();
+        this.player.timer.purge();
+      }
+      this.player.flame++;
+    }
+  }
 }

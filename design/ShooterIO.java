@@ -234,16 +234,18 @@ public class ShooterIO implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent e) {
     if( e.getSource() == this.playButton ){
-      ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.GAMEPANEL);
-      this.mapFrame = new JFrame();
-      this.mapFrame.setPreferredSize(new Dimension(285,500));
-      Container cc = new Container();
-      Map map = new Map(this.g, cc, 267, 200, 0, 0);
-      this.mapFrame.add(map);
-      this.mapFrame.repaint();
-      this.mapFrame.revalidate();
-      this.mapFrame.pack();
-      this.mapFrame.setVisible(true);
+      if(this.g.bombs.size() > 0) {
+        ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.GAMEPANEL);
+        this.mapFrame = new JFrame();
+        this.mapFrame.setPreferredSize(new Dimension(285,500));
+        Container cc = new Container();
+        Map map = new Map(this.g, cc, 267, 200, 0, 0);
+        this.mapFrame.add(map);
+        this.mapFrame.repaint();
+        this.mapFrame.revalidate();
+        this.mapFrame.pack();
+        this.mapFrame.setVisible(true);
+      }
     }
     if( e.getSource() == this.instructionsButton )
       ((CardLayout)this.mainComponents.getLayout()).show(this.mainComponents, ShooterIO.INSTRUCTIONSPANEL);

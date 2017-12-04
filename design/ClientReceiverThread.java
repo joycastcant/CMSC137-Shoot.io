@@ -2,11 +2,14 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.swing.JOptionPane;
+
 public class ClientReceiverThread extends Thread {
     private DatagramSocket sock;
     private byte buf[];
     private Object received;
     private Game game;
+    private int end = 0;
 
     ClientReceiverThread(DatagramSocket s, Game g) {
         sock = s;
@@ -36,6 +39,18 @@ public class ClientReceiverThread extends Thread {
 
                    /*  pl.getWeapon().setX((Game.ROW_ADJUST + (x - game.getPlayer().getPosX())) * 50);
                     pl.getWeapon().setY((Game.COL_ADJUST + (y - game.getPlayer().getPosY())) * 50); */
+                    /* System.out.println(pl.didShoot());
+                    if(pl.didShoot())
+                        pl.shoot(); */
+
+                    if(this.end == 0 && pl.getPoints() >= 10000) {
+                        JOptionPane.showMessageDialog(null, pl.getName() + " won!", "ShooterIO: End Game", JOptionPane.INFORMATION_MESSAGE);
+                        this.end = 1;
+                        if (this.end == 1) {
+                            System.exit(0);
+                        }
+                    }
+
                     game.addPlayer(pl);
 
                     int[][] f = game.getField();

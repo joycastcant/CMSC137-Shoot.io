@@ -25,10 +25,11 @@ public class Weapon implements Serializable {
 	private int direction;
 
 	private ArrayList<Bullet> bullets;
+	private Player player;
 	/*private Player owner;
 	private BufferedImage sprite;*/
 	
-	public Weapon(int type, int direction){
+	public Weapon(int type, int direction, Player p){
 		/* if(type.equals("PISTOL")){
 			this.type = PISTOL;
 		} else {
@@ -38,6 +39,7 @@ public class Weapon implements Serializable {
 		this.type = type;
 		this.direction = direction;
 		this.bullets = new ArrayList<Bullet>();
+		this.player = p;
 		this.setDamage();
 	}
 	
@@ -59,7 +61,9 @@ public class Weapon implements Serializable {
 	}
 	
 	public void fire() {
-		Bullet b = new Bullet(0, 0, 0, 0);
+		System.out.println(this.player.getName() + ": flame thrower");
+		// this.player.setShoot(false);
+		/* Bullet b = new Bullet(0, 0, 0, 0);
 		if(this.direction == Game.RIGHT) {
 			b = new Bullet(this.type, this.playerX + Game.TILE_SIZE, this.playerY + Game.TILE_SIZE / 2, this.direction);
 		} else if(this.direction == Game.LEFT) {
@@ -71,7 +75,7 @@ public class Weapon implements Serializable {
 		}
 
 		b.isMoving = true;
-		this.bullets.add(b);
+		this.bullets.add(b); */
 	}
 	
 	/*public BufferedImage getSprite(int col, int row, int width, int height) {

@@ -24,7 +24,7 @@ public class MultiThreadChatServerSync {
       System.out.println("Server Running...\n"
           + "Now using port number=" + portNumber + "and server port = " + serverPort);
       try {
-        Server s = new Server(Integer.parseInt(args[0]));
+        Server s = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
         s.start();
       } catch (Exception e) {
         System.out.println(e);

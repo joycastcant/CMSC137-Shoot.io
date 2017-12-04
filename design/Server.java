@@ -8,16 +8,20 @@ public class Server extends Thread {
     private ArrayList<Integer> clientPorts;
     private HashMap<String, Integer> existingClients;
     private HashMap<Integer, Bomb> bombs;
+    private int numP;
+    private int flag = 0;
 
-    public Server(int port) throws IOException {
+    public Server(int port, int num) throws IOException {
         this.socket = new DatagramSocket(port);
         this.clientAddresses = new ArrayList<InetAddress>();
         this.clientPorts = new ArrayList<Integer>();
         this.existingClients = new HashMap<String, Integer>();
+        this.numP = num;
         this.generateBombs(10);
     }
     
     public void run() {
+        System.out.println("Waiting for players...");
         byte[] buf = new byte[1024];
         
         while (true) {
@@ -25,18 +29,25 @@ public class Server extends Thread {
                 Arrays.fill(buf, (byte)0);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
-                
+
                 // String content = new String(packet.getData(), 0, packet.getLength());
-                
+
                 InetAddress clientAddress = packet.getAddress();
                 int clientPort = packet.getPort();
                 
-                // System.out.println("CONTENT: " + content);
-                String id = clientAddress.toString() + "," + clientPort;
-                if (!existingClients.containsKey(id)) {
-                    existingClients.put(id, 0);
-                    clientPorts.add(clientPort);
-                    clientAddresses.add(clientAddress);
+                // while(existingClients.size() < numP) {
+                    String id = clientAddress.toString() + "," + clientPort;
+                    if (!existingClients.containsKey(id)) {
+                        existingClients.put(id, 0);
+                        clientPorts.add(clientPort);
+                        clientAddresses.add(clientAddress);
+                        System.out.println("Current number: " + existingClients.size());
+                    }
+                // }
+
+                if(this.flag == 0 && existingClients.size() >= numP){
+                    System.out.println("Expected number of players reached!");
+                    this.flag = 1;
                 }
                 
                 // byte[] data = content.getBytes();
@@ -62,11 +73,6 @@ public class Server extends Thread {
                 System.out.println("Exception: " + e.getMessage());
             }
         }
-    }
-    
-    public static void main(String args[]) throws Exception {
-        Server s = new Server(Integer.parseInt(args[0]));
-        s.start();
     }
 
     public void generateBombs(int num) {

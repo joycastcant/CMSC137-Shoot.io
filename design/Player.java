@@ -38,6 +38,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	private int direction;
 	private transient BufferedImage sprite;	//marked as 'transient' bc BufferedImage does not implement Serializable
 	private String id;
+	private boolean didShoot;
 	
 	public Player(String name, int[][] field, String id, String path){
 
@@ -68,6 +69,9 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 
 	public void setPoints(int action) {
 		this.points = this.points + action;
+
+		if(action == KILL)
+			this.kills++;
 	}
 		
 
@@ -157,6 +161,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	}
 
 	public void shoot(){
+		this.didShoot = true;
 		this.weapon.fire();
 	}
 	
@@ -180,7 +185,7 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 		do{
 			x = rand.nextInt(field.length);
 			y = rand.nextInt(field[0].length);
-		}while(field[x][y] == 1 || field[x][y] == 2);
+		}while(field[x][y] != 0);
 		this.posX = x;
 		this.posY = y;
 		field[x][y] = 3;
@@ -209,7 +214,11 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 	}
 	
 	public void setWeapon(int type){
-		this.weapon = new Weapon(type, this.direction);
+		this.weapon = new Weapon(type, this.direction, this);
+	}
+
+	public void setShoot(boolean b) {
+		this.didShoot = b;
 	}
 	
 	public void switchWeapon(){
@@ -283,6 +292,10 @@ public class Player implements Runnable, Serializable { //implements KeyListener
 
 	public Weapon getWeapon() {
 		return this.weapon;
+	}
+
+	public boolean didShoot() {
+		return this.didShoot;
 	}
  
 	public void setDirection(int dir) {

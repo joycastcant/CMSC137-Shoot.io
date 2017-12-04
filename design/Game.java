@@ -42,7 +42,7 @@ public class Game extends JPanel implements KeyListener {
   private Map map;
   private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
   private HashMap<String, Player> players = new HashMap<String, Player>();
-  private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
+  protected ArrayList<Bomb> bombs = new ArrayList<Bomb>();
   private Font font;
 
 
@@ -141,6 +141,11 @@ public class Game extends JPanel implements KeyListener {
     } catch(Exception e) {
       System.err.println(e);
     }
+
+    ArrayList<Object> data = new ArrayList<Object>();
+    data.add(this.deadBombs);
+    data.add(this.player);
+    this.client.getSender().setData(data);
   }
 
   public void registerFont() {
@@ -189,9 +194,9 @@ public class Game extends JPanel implements KeyListener {
         // check if block or floor
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
-            this.player.getWeapon().setX(i);
+            /* this.player.getWeapon().setX(i);
             this.player.getWeapon().setY(j);
-            this.updateBullets(this.player);
+            this.updateBullets(this.player); */
 
              switch (this.direction) {
               case UP:
@@ -211,18 +216,18 @@ public class Game extends JPanel implements KeyListener {
                 break;
             }
           } else if(field[x][y] == 6)   {
-            Player p = this.getPlayerByPos(x, y);
+            /* Player p = this.getPlayerByPos(x, y);
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
-            this.updateBullets(p);
+            this.updateBullets(p); */
             g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
           } else if(field[x][y] == 5) {
-            Player p = this.getPlayerByPos(x, y);
+            /* Player p = this.getPlayerByPos(x, y);
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
             p.getWeapon().setX(i);
             p.getWeapon().setY(j);
-            this.updateBullets(p);
+            this.updateBullets(p); */
             g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
           }
 
@@ -321,7 +326,7 @@ public class Game extends JPanel implements KeyListener {
     g.setFont(font);
     g.setColor(Color.WHITE);
     g.drawString("Health:   " + player.getHP() ,300,590);
-    g.drawString("Score:   " + 1000 ,480,590);
+    g.drawString("Score:   " + player.getPoints() ,480,590);
     g.drawString("Kills:   " + player.getKills() ,660,590);
 
     //---- BULLETS
@@ -461,10 +466,11 @@ public class Game extends JPanel implements KeyListener {
     }
 
     if( e.getKeyCode() == KeyEvent.VK_UP) {
-      if(this.bombs.size()!=0) {
+      this.player.setPoints(Player.KILL);
+      /* if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
         this.deadBombs.put(0, this.bombs.get(0));
-      }
+      } */
     }
 
     if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {

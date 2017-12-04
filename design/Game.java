@@ -217,6 +217,7 @@ public class Game extends JPanel implements KeyListener {
             p.getWeapon().setY(j);
             this.updateBullets(p);
             g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+            g.drawString(p.getName() ,i,j);
           } else if(field[x][y] == 5) {
             Player p = this.getPlayerByPos(x, y);
             System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
@@ -224,6 +225,7 @@ public class Game extends JPanel implements KeyListener {
             p.getWeapon().setY(j);
             this.updateBullets(p);
             g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+            g.drawString(p.getName() ,i,j);
           }
 
           else { // IF FIELD CONTAINS -NO- BLOCK
@@ -333,7 +335,7 @@ public class Game extends JPanel implements KeyListener {
     } */
 
     this.drawBullets(g2d);
-    
+
     setFocusable(true);
     if (this.isInGame) {
       requestFocus();
@@ -467,6 +469,62 @@ public class Game extends JPanel implements KeyListener {
       }
     }
 
+
+    if( e.getKeyCode() == KeyEvent.VK_L) {
+      Comparator<Player> hComparator = new Comparator<Player>() {
+    		@Override
+    		public int compare(Player p1, Player p2) {
+    			return (int) (p1.getPoints()-p2.getPoints());
+    		}
+    	};
+
+      ArrayList<Player> sortedP = new ArrayList<Player>();
+      for(Player p : players.values()) {
+        sortedP.add(p);
+      }
+
+      sortedP.sort(hComparator);
+
+      JPanel leaderboard = new JPanel();
+      leaderboard.setLayout(new GridLayout(sortedP.size()+1,3));
+
+      JLabel nameH = new JLabel("Name");
+      JLabel scoreH = new JLabel("Score");
+      JLabel killsH = new JLabel("Kills");
+
+      nameH.setHorizontalAlignment(JLabel.CENTER);
+      scoreH.setHorizontalAlignment(JLabel.CENTER);
+      killsH.setHorizontalAlignment(JLabel.CENTER);
+
+      nameH.setFont(new Font("Serif", Font.PLAIN, 14));
+      scoreH.setFont(new Font("Serif", Font.PLAIN, 14));
+      killsH.setFont(new Font("Serif", Font.PLAIN, 14));
+
+      leaderboard.add(nameH);
+      leaderboard.add(scoreH);
+      leaderboard.add(killsH);
+
+      for(Player p : sortedP) {
+        JLabel name = new JLabel(p.getName());
+        JLabel score = new JLabel(String.valueOf(p.getPoints()));
+        JLabel kills = new JLabel(String.valueOf(p.getKills()));
+
+        name.setHorizontalAlignment(JLabel.CENTER);
+        score.setHorizontalAlignment(JLabel.CENTER);
+        kills.setHorizontalAlignment(JLabel.CENTER);
+
+        leaderboard.add(name);
+        leaderboard.add(score);
+        leaderboard.add(kills);
+      }
+
+      JOptionPane pane = new JOptionPane(leaderboard);
+
+      JDialog dialog = pane.createDialog(this, "LEADERBOARD");
+
+      dialog.setVisible(true);
+    }
+
     if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
       Object[] options = new Object[2];
       options[0] = "YES";
@@ -570,8 +628,8 @@ public class Game extends JPanel implements KeyListener {
     return this.player;
   }
 
-  private void updatePlayers() {  
-    ArrayList<Player> pList = new ArrayList<Player>();  
+  private void updatePlayers() {
+    ArrayList<Player> pList = new ArrayList<Player>();
     for(int i = 0; i < pList.size(); i++) {
       Player pl = pList.get(i);
       System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + pl.getName());

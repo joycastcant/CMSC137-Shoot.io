@@ -323,7 +323,7 @@ public class Game extends JPanel implements KeyListener {
     g.setFont(font);
     g.setColor(Color.WHITE);
     g.drawString("Health:   " + player.getHP() ,300,590);
-    g.drawString("Score:   " + 1000 ,480,590);
+    g.drawString("Score:   " + player.getPoints() ,480,590);
     g.drawString("Kills:   " + player.getKills() ,660,590);
 
     //---- BULLETS

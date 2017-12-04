@@ -2,13 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.io.*;
+import java.awt.AlphaComposite;
 
-public class Game extends JPanel implements KeyListener {
+public class Game extends JPanel implements KeyListener, MouseListener {
   // MultiThreadChatClient client;
   Client client;
   //adjustments between game and the field 2D array
   final static int ROW_ADJUST = 8;
   final static int COL_ADJUST = 6;
+  final static int TILE_SIZE = 50;
 
   //directions
   final static int NONE = 0;
@@ -16,6 +19,7 @@ public class Game extends JPanel implements KeyListener {
   final static int RIGHT = 2;
   final static int DOWN = 3;
   final static int LEFT = 4;
+  final static int MAXHP = 100;
 
   private int camX;
   private int camY;
@@ -25,7 +29,6 @@ public class Game extends JPanel implements KeyListener {
   private int tileSize = 50;
   private Tile block = new Tile("images/prison_platform.png");
   private Tile floor = new Tile("images/tile.png");
-  private Tile a = new Tile("images/a.png");
   private int direction;
   private Chat chat;
   private boolean isInGame = true;
@@ -33,8 +36,15 @@ public class Game extends JPanel implements KeyListener {
   private Thread clThread;
   private int flag = 1;
   private Player player;
-
+  private String name;
+  private String host;
+  private String port;
+  private Map map;
+  private HashMap<Integer, Bomb> deadBombs = new HashMap<Integer, Bomb>();
+  private HashMap<String, Player> players = new HashMap<String, Player>();
   private ArrayList<Bomb> bombs = new ArrayList<Bomb>();
+  private Font font;
+
 
   //original map
   /* private int [][]field = {     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   //initial map with no destroyable blocks
@@ -79,22 +89,52 @@ public class Game extends JPanel implements KeyListener {
                         {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
                         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
                     };
+    final static int[][] FIELD = {
+                        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+                        {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+                        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+                        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+                    };
 
-  public Game(int width, int height, int camX, int camY) {
+  public Game(int width, int height, int camX, int camY, String host, String port, String name) {
     this.width = field.length * this.tileSize;//width;
     this.height = field[0].length * this.tileSize;//height;
     this.camX = camX;
     this.camY = camY;
     this.direction = NONE;
+    this.registerFont();
     this.setBackground(Color.black);
-    this.generateBombs(10);
     this.addKeyListener(this);
-    
-    try {
-      //change ip address according to your computer/network
+    this.addMouseListener(this);
 
-      this.client = new Client("10.0.4.21", "8080", this.field);
-      this.player =  new Player("My Name", this.field, this.client.getId());
+    this.host = host;
+    this.port = port;
+    this.name = name;
+
+    try {
+      this.client = new Client(this.host, this.port, this);
+      this.player =  new Player(this.name, this.field, this.client.getId(), "images/player.png");
       Thread receiver = new Thread(this.client.getReceiver());
       Thread sender = new Thread(this.client.getSender());
       receiver.start();
@@ -104,17 +144,13 @@ public class Game extends JPanel implements KeyListener {
     }
   }
 
-  public void generateBombs(int num) {
-    Random rand = new Random();
-    int x,y;
-    for(int i=0;i<num;i++) { // randomized position
-      do{
-        x = rand.nextInt(this.field.length);
-        y = rand.nextInt(this.field[0].length);
-      } while(this.field[x][y] == 1);
-      this.bombs.add(new Bomb(x,y)); // instantiate bombs
-      this.field[x][y] = 2;
-    }
+  public void registerFont() {
+    GraphicsEnvironment ge = null;
+    try{
+      ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+      ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("resources/joystix.monospace.ttf")));
+    } catch(FontFormatException e){} catch (IOException e){} catch(NullPointerException e){}
+    this.font = new Font("Joystix Monospace", Font.PLAIN, 12);
   }
 
   @Override
@@ -125,6 +161,9 @@ public class Game extends JPanel implements KeyListener {
     //i and j represents the x and y of the window
     this.camX = (player.getPosX() - ROW_ADJUST) * this.tileSize;
     this.camY = (player.getPosY() - COL_ADJUST) * this.tileSize;
+    this.map.setPosition(this.player.getPosX(), this.player.getPosY());
+
+    // FOR TILES AND BLOCKS
     for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
       for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
         x = sudoX/this.tileSize;
@@ -134,93 +173,328 @@ public class Game extends JPanel implements KeyListener {
         try {
           if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
              g.drawImage(this.floor.getTile(), i, j, null);
-             
+          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
+              g.drawImage(this.block.getTile(), i, j, this);
+            else // IF FIELD CONTAINS NOTHING
+              g.drawImage(this.floor.getTile(), i, j, this);
+        } catch(ArrayIndexOutOfBoundsException e) { }
+      }
+    }
+
+    // FOR PLAYERS AND BOMBS
+    for(int i=0, sudoX=this.camX; i<=this.width && sudoX<=this.width; i+=this.tileSize, sudoX+=this.tileSize) {
+      for(int j=0, sudoY=this.camY; j<=this.height && sudoY<=this.height; j+=this.tileSize, sudoY+=this.tileSize) {
+        x = sudoX/this.tileSize;
+        y = sudoY/this.tileSize;
+
+        // check if block or floor
+        try {
+          if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) {
+            this.player.getWeapon().setX(i);
+            this.player.getWeapon().setY(j);
+            this.updateBullets(this.player);
+
              switch (this.direction) {
               case UP:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1; l<=2; l++) {
+                    if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                      if ( l == player.getFlame() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<=2))
+                        g.drawImage(player.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                      else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                        g.drawImage(player.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                      else
+                        g.drawImage(player.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                      if(field[x][y-(l+1)] == 6 || field[x][y-(l+1)] == 5 ) {
+                        for(Player p : players.values()) {
+                          if(p.getPosY() == y-(l+1) && p.getPosX() == x) {
+                            p.takeDamage(field);
+                            player.setPoints(20);
+                          }
+                        }
+                      }
+                    } else break;
+                  }
+                }
                 break;
               case RIGHT:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                        if ( l == player.getFlame() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                        else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                          g.drawImage(player.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                        if(field[x+(l+1)][y] == 6 || field[x+(l+1)][y] == 5 ) {
+                          for(Player p : players.values()) {
+                            if(p.getPosY() == y && p.getPosX() == x+(l+1)) {
+                              p.takeDamage(field);
+                              player.setPoints(20);
+                            }
+                          }
+                        }
+                      } else break;
+                  }
+                }
                 break;
               case DOWN:
                 g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( y+l > -1 && this.field[x][(y+l)] != 1 ) {
+                        if ( l == player.getFlame() || (y+(l+1) > this.field.length && this.field[x][(y+(l+1))] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                        else if( y+(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                          g.drawImage(player.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        if(field[x][y+(l+1)] == 6 || field[x][y+(l+1)] == 5 ) {
+                          for(Player p : players.values()) {
+                            if(p.getPosY() == y+(l+1) && p.getPosX() == x) {
+                              p.takeDamage(field);
+                              player.setPoints(20);
+                            }
+                          }
+                        }
+                      } else break;
+                  }
+                }
                 break;
               case LEFT:
                 g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+                if(player.isShooting()) {
+                  for(int l=1;l<player.getFlame()+1;l++) {
+                      if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                        if ( l == player.getFlame() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<=2))
+                          g.drawImage(player.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                        else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                          g.drawImage(player.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                        else
+                          g.drawImage(player.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                        if(field[x-(l+1)][y] == 6 || field[x-(l+1)][y] == 5 ) {
+                          for(Player p : players.values()) {
+                            if(p.getPosY() == y && p.getPosX() == x-(l+1)) {
+                              p.takeDamage(field);
+                              player.setPoints(20);
+                            }
+                          }
+                        }
+                      } else break;
+                  }
+                }
                 break;
               default:
                 g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
                 break;
             }
-            /* g.setColor(Color.BLACK);
-            g.fillRect(i, j, this.tileSize, this.tileSize); */
-          } else if(field[x][y] == 1) // IF FIELD CONTAINS BLOCK
-              g.drawImage(this.block.getTile(), i, j, this);
 
-            else if(field[x][y] == 6) // IF FIELD CONTAINS A PLAYER
-              g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
-
-            else if(field[x][y] == 5) // IF FIELD CONTAINS A PLAYER
-              g.drawImage(player.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
-            
-            else if(field[x][y] == 0) // IF FIELD CONTAINS NOTHING
-              g.drawImage(this.floor.getTile(), i, j, this);
-
-          else { // IF FIELD CONTAINS -NO- BLOCK
-            g.drawImage(this.floor.getTile(), i, j, this);
+          } else if(field[x][y] == 6 || field[x][y] == 5)   {
+            Player p = this.getPlayerByPos(x, y);
+            System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + p.getName());
+            p.getWeapon().setX(i);
+            p.getWeapon().setY(j);
+            this.updateBullets(p);
+            g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+            g.drawString(p.getName() ,i,j);
+            switch (p.getDirection()) {
+             case UP:
+               g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+               if(p.isShooting()) {
+                 for(int l=1; l<=2; l++) {
+                   if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                     if ( l == p.getFlame() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<=2))
+                       g.drawImage(p.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                     else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                       g.drawImage(p.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                     else
+                       g.drawImage(p.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                   } else break;
+                 }
+               }
+               break;
+             case RIGHT:
+               g.drawImage(p.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+               if(p.isShooting()) {
+                 for(int l=1;l<p.getFlame()+1;l++) {
+                     if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                       if ( l == p.getFlame() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<=2))
+                         g.drawImage(p.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                       else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                         g.drawImage(p.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                       else
+                         g.drawImage(p.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                     } else break;
+                 }
+               }
+               break;
+             case DOWN:
+               g.drawImage(p.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+               if(p.isShooting()) {
+                 for(int l=1;l<p.getFlame()+1;l++) {
+                     if ( y+l > -1 && this.field[x][(y+l)] != 1 ) {
+                       if ( l == p.getFlame() || (y+(l+1) > this.field.length && this.field[x][(y+(l+1))] == 1 && l<=2))
+                         g.drawImage(p.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                       else if( y+(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                         g.drawImage(p.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                       else
+                         g.drawImage(p.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                     } else break;
+                 }
+               }
+               break;
+             case LEFT:
+               g.drawImage(p.getSprite("images/playerLeft.png"), i, j, 50, 50, null);
+               if(p.isShooting()) {
+                 for(int l=1;l<p.getFlame()+1;l++) {
+                     if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                       if ( l == p.getFlame() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<=2))
+                         g.drawImage(p.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                       else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                         g.drawImage(p.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                       else
+                         g.drawImage(p.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                     } else break;
+                 }
+               }
+               break;
+             default:
+               g.drawImage(player.getSprite("images/playerRight.png"), i, j, 50, 50, null);
+               break;
+           }
+          } else { // IF FIELD CONTAINS -NO- BLOCK
             if(field[x][y] == 2) { // IF FIELD CONTAINS BOMB
-
               // Check each bomb position
               for(int k=0;k<this.bombs.size();k++) {
-                if(this.bombs.get(k).isDead()) { // remove bomb if exploded
-                  this.field[this.bombs.get(0).getX()][this.bombs.get(0).getY()] = 0;
-                  this.bombs.remove(0);
-                } else if(this.bombs.get(k).getX() == x && this.bombs.get(k).getY() == y) {
-                  g.drawImage(this.bombs.get(k).getImg().getTile(), i, j, this);
+                Bomb currBomb = this.bombs.get(k);
+                if(currBomb == null) break;
+
+                if(currBomb.isDead()) { // remove bomb if exploded
+                  this.field[currBomb.getX()][currBomb.getY()] = 0;
+                  this.bombs.remove(k);
+                } else if(currBomb.getX() == x && currBomb.getY() == y) {
+                  g.drawImage(currBomb.getImg().getTile(), i, j, this);
 
                   //------ Check explosion of bomb
+                  if(!currBomb.isExploding()) g.drawImage(currBomb.getImg().getTile(), i, j, this);
+                  else {
+                    g.drawImage(currBomb.getSprite("images/ex1.png"), i, j, this);
 
-                  //---- SOUTH
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j+(l*this.tileSize)), this);
-                      } else break;
+                    //---- SOUTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y+l < this.field[0].length && this.field[x][(y+l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y+(l+1) > this.field[0].length && this.field[x][(y+(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex4.png"), i, (j+(l*this.tileSize)), this);
+                          else if( y+(l+1) < this.field[0].length && this.field[x][(y+(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j+(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- NORTH
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (y-(l+1) > -1 && this.field[x][(y-(l+1))] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex2.png"), i, (j-(l*this.tileSize)), this);
+                          else if( y-(l+1) < this.field[0].length && this.field[x][(y-(l+1))] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex6.png"), i, (j-(l*this.tileSize)), this);
+                        } else break;
+                    }
+
+                    //---- EAST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x+(l+1) > this.field.length && this.field[x+(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex3.png"), i+(l*this.tileSize), (j), this);
+                          else if( x+(l+1) < this.field[0].length && this.field[x+(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i+(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i+(l*this.tileSize)), j, this);
+                        } else break;
+                    }
+
+                    //---- WEST
+                    for(int l=1;l<currBomb.getExplosion()+1;l++) {
+                        if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
+                          if ( l == currBomb.getExplosion() || (x-(l+1) > -1 && this.field[x-(l+1)][(y)] == 1 && l<currBomb.getExplosion()+1))
+                            g.drawImage(currBomb.getSprite("images/ex5.png"), i-(l*this.tileSize), (j), this);
+                          else if( x-(l+1) < this.field[0].length && this.field[x-(l+1)][(y)] == 1)
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), i-(l*this.tileSize), (j), this);
+                          else
+                            g.drawImage(currBomb.getSprite("images/ex7.png"), (i-(l*this.tileSize)), j, this);
+                        } else break;
+                    }
                   }
 
-                  //---- NORTH
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( y-l > -1 && this.field[x][(y-l)] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), i, (j-(l*this.tileSize)), this);
-                      } else break;
-                  }
-
-                  //---- EAST
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( x+l < this.field.length && this.field[(x+l)][y] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), (i+(l*this.tileSize)), j, this);
-                      } else break;
-                  }
-
-                  //---- WEST
-                  for(int l=1;l<this.bombs.get(k).getExplosion()+1;l++) {
-                      if ( x-l > -1 && this.field[(x-l)][y] != 1 ) {
-                        g.drawImage(this.bombs.get(k).getImg().getTile(), (i-(l*this.tileSize)), j, this);
-                      } else break;
-                  }
                 }
               }
             }
+            // for (Player p : players.values()) {
+            //   if(x == p.getPosX() && y == p.getPosX())
+            //     g.drawString(p.getName() ,i,j);
+            // }
           }
         } catch(ArrayIndexOutOfBoundsException e) { }
+        if(i == (ROW_ADJUST*this.tileSize) && j == (COL_ADJUST*this.tileSize)) g.drawString(player.getName() ,i,j);
       }
     }
+
+    //---- STATS
+    Graphics2D g2d = (Graphics2D)g;
+    g2d.setColor(Color.BLACK);
+
+    Composite originalComposite = g2d.getComposite();
+    AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
+
+    g2d.setComposite(alphaComposite);
+    g2d.setColor(Color.BLACK);
+    g2d.fillRect(0,575 ,800,30);
+    g2d.setComposite(originalComposite);
+
+    g.setFont(font);
+    g.setColor(Color.WHITE);
+    g.drawString("Health:   " + player.getHP() ,300,590);
+    g.drawString("Score:   " + player.getPoints() ,480,590);
+    g.drawString("Kills:   " + player.getKills() ,660,590);
+
+    //---- BULLETS
+    /* ArrayList<Bullet> bulletArray = this.player.getWeapon().getBullets();
+		for(int j = 0; j < bulletArray.size(); j++) {
+      Bullet bullet = bulletArray.get(j);
+      g2d.setColor(bullet.getColor());
+			g2d.fillRect(bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight());
+    } */
+
+    this.drawBullets(g2d);
 
     setFocusable(true);
     if (this.isInGame) {
       requestFocus();
     }
+    // this.updateBullets();
     this.repaint();
     this.revalidate();
+  }
+
+  public void drawBullets(Graphics2D g2d) {
+    ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
+    for(int i = 0; i < pList.size(); i++) {
+      Player p = pList.get(i);
+
+      ArrayList<Bullet> bulletArray = p.getWeapon().getBullets();
+      for(int j = 0; j < bulletArray.size(); j++) {
+        Bullet bullet = bulletArray.get(j);
+        // System.out.println("bullet-x: " + bullet.getX() + "\nbullet-y: " + bullet.getY());
+        g2d.setColor(bullet.getColor());
+        g2d.fillRect(bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight());
+      }
+    }
   }
 
   /*==============
@@ -229,57 +503,7 @@ public class Game extends JPanel implements KeyListener {
 
   @Override
   public void keyPressed( KeyEvent e ){
-    // scroll through map
-    // int nextX = 0;
-    // int nextY = 0;
 
-    // int currX = (this.camX/this.tileSize) + ROW_ADJUST;
-    // int currY = (this.camY/this.tileSize) + COL_ADJUST;
-    
-    // if( e.getKeyCode() == KeyEvent.VK_S) {
-    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
-    //   nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
-    //   this.direction = DOWN;
-    //   player.setDirection(DOWN);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camY += this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveDown(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_W) {
-    //   nextX = (this.camX/this.tileSize) + ROW_ADJUST;
-    //   nextY = (this.camY - this.offSet)/this.tileSize + COL_ADJUST;
-    //   this.direction = UP;
-    //   player.setDirection(UP);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camY -= this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveUp(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_A) {
-    //   nextX = (this.camX - this.offSet)/this.tileSize + ROW_ADJUST;
-    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
-    //   this.direction = LEFT;
-    //   player.setDirection(LEFT);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camX -= this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveLeft(field);
-    // }
-    // if( e.getKeyCode() == KeyEvent.VK_D) {
-    //   nextX = (this.camX + this.offSet)/this.tileSize + ROW_ADJUST;
-    //   nextY = (this.camY/this.tileSize) + COL_ADJUST;
-    //   this.direction = RIGHT;
-    //   player.setDirection(RIGHT);
-    //   if(field[nextX][nextY] != 1) {
-    //     this.camX += this.offSet;
-    //     this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
-    //   }
-    //   player.moveRight(field);
-    // }
     if( e.getKeyCode() == KeyEvent.VK_ENTER) {
       if(isInGame) {
         isInGame = false;
@@ -291,6 +515,14 @@ public class Game extends JPanel implements KeyListener {
         isInGame = true;
       }
     }
+
+    if( e.getKeyCode() == KeyEvent.VK_L) {  //show leaderboard. alter key
+      ArrayList<Player> pList = new ArrayList<>(this.players.values());
+      for(int i = 0; i < pList.size(); i++) {
+        System.out.println(pList.get(i).getName()); //prints the name of ith player
+      }
+    }
+
     // bomb
     // if( e.getKeyCode() == KeyEvent.VK_UP) {
     //   if(this.bombs.size()!=0) {
@@ -298,16 +530,17 @@ public class Game extends JPanel implements KeyListener {
     //   }
     // }
   }
-  
+
   @Override
   public void keyReleased(KeyEvent e) {
     //this.direction = NONE;
     int nextX = 0;
     int nextY = 0;
 
-    int currX = (this.camX/this.tileSize) + ROW_ADJUST;
-    int currY = (this.camY/this.tileSize) + COL_ADJUST;
-    
+    ArrayList<Object> data = new ArrayList<Object>();
+    data.add(this.deadBombs);
+    data.add(player);
+
     if( e.getKeyCode() == KeyEvent.VK_S) {
       nextX = (this.camX/this.tileSize) + ROW_ADJUST;
       nextY = (this.camY + this.offSet)/this.tileSize + COL_ADJUST;
@@ -315,7 +548,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(DOWN);
       if(field[nextX][nextY] != 1) {
         this.camY += this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(data);
       }
       player.moveDown(field);
     }
@@ -326,7 +559,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(UP);
       if(field[nextX][nextY] != 1) {
         this.camY -= this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(data);
       }
       player.moveUp(field);
     }
@@ -337,7 +570,7 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(LEFT);
       if(field[nextX][nextY] != 1) {
         this.camX -= this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(data);
       }
       player.moveLeft(field);
     }
@@ -348,14 +581,100 @@ public class Game extends JPanel implements KeyListener {
       player.setDirection(RIGHT);
       if(field[nextX][nextY] != 1) {
         this.camX += this.offSet;
-        this.client.getSender().setData(player.getId() + "," + nextX + "," + nextY + "," + currX + "," + currY + "," + this.direction);
+        this.client.getSender().setData(data);
       }
       player.moveRight(field);
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_Q) {
+      this.player.switchWeapon();
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_E) {
+      this.player.switchWeapon();
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_SPACE) {
+      System.out.println("SHOOT");
+      this.player.shoot();
     }
 
     if( e.getKeyCode() == KeyEvent.VK_UP) {
       if(this.bombs.size()!=0) {
         this.bombs.get(0).explode();
+        this.deadBombs.put(0, this.bombs.get(0));
+      }
+    }
+
+
+    if( e.getKeyCode() == KeyEvent.VK_L) {
+      Comparator<Player> hComparator = new Comparator<Player>() {
+    		@Override
+    		public int compare(Player p1, Player p2) {
+    			return (int) (p1.getPoints()-p2.getPoints());
+    		}
+    	};
+
+      ArrayList<Player> sortedP = new ArrayList<Player>();
+      for(Player p : players.values()) {
+        sortedP.add(p);
+      }
+
+      sortedP.sort(hComparator);
+
+      JPanel leaderboard = new JPanel();
+      leaderboard.setLayout(new GridLayout(sortedP.size()+1,3));
+
+      JLabel nameH = new JLabel("Name");
+      JLabel scoreH = new JLabel("Score");
+      JLabel killsH = new JLabel("Kills");
+
+      nameH.setHorizontalAlignment(JLabel.CENTER);
+      scoreH.setHorizontalAlignment(JLabel.CENTER);
+      killsH.setHorizontalAlignment(JLabel.CENTER);
+
+      nameH.setFont(new Font("Serif", Font.PLAIN, 14));
+      scoreH.setFont(new Font("Serif", Font.PLAIN, 14));
+      killsH.setFont(new Font("Serif", Font.PLAIN, 14));
+
+      leaderboard.add(nameH);
+      leaderboard.add(scoreH);
+      leaderboard.add(killsH);
+
+      for(Player p : sortedP) {
+        JLabel name = new JLabel(p.getName());
+        JLabel score = new JLabel(String.valueOf(p.getPoints()));
+        JLabel kills = new JLabel(String.valueOf(p.getKills()));
+
+        name.setHorizontalAlignment(JLabel.CENTER);
+        score.setHorizontalAlignment(JLabel.CENTER);
+        kills.setHorizontalAlignment(JLabel.CENTER);
+
+        leaderboard.add(name);
+        leaderboard.add(score);
+        leaderboard.add(kills);
+      }
+
+      JOptionPane pane = new JOptionPane(leaderboard);
+
+      JDialog dialog = pane.createDialog(this, "LEADERBOARD");
+
+      dialog.setVisible(true);
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+      Object[] options = new Object[2];
+      options[0] = "YES";
+      options[1] = "NO";
+
+      JOptionPane escPane = new JOptionPane("Are you sure you want to exit?", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options);
+
+      JDialog dialog = escPane.createDialog(null, "ShooterIO: Goodbye?");
+
+      dialog.setVisible(true);
+
+      if((escPane.getValue()).equals(options[0])) {
+          System.exit(0);
       }
     }
   }
@@ -385,21 +704,91 @@ public class Game extends JPanel implements KeyListener {
   public void setMessage(String m) {
     this.message = m;
   }
-  
+
   public void appendMsg(String msg) {
     this.chat.appendMessage(msg);
   }
 
-  /* public void setWaitThread(){
-    this.pauseThread();
+  public void setMap(Map map) {
+    this.map = map;
   }
-  private void pauseThread(){
-    try{
-      if(this.clThread.isAlive()){
-        this.clThread.wait();
+
+  public int[][] getField() {
+    return this.field;
+  }
+
+  public void setBombs(HashMap<Integer, Bomb> bms, boolean initial) {
+    if(initial == true) {
+      this.bombs = new ArrayList<Bomb>();
+      for(int i = 0; i < bms.size(); i++) {
+        Bomb b = bms.get(i);
+        int x = b.getX();
+        int y = b.getY();
+        Bomb sample = new Bomb(0, 0);
+        b.setTile(sample.getImg());
+        this.bombs.add(b);
+        this.field[x][y] = 2;
       }
-    } catch(Exception e) {
-      System.out.println("Error has occured");
+    } else if(initial == false) {
+      for(int i = 0; i < this.bombs.size(); i++) {
+        if(bms.containsKey(i)) {
+          Bomb b = this.bombs.get(i);
+          int x = b.getX();
+          int y = b.getY();
+          b.explode();
+          this.deadBombs.remove(i);
+        }
+      }
     }
-  } */
+  }
+
+  public void addPlayer(Player p) {
+    this.players.put(p.getId(), p); //player is always unique
+  }
+
+  private void updateBullets(Player p){
+		ArrayList<Bullet> bulletArray = p.getWeapon().getBullets();
+
+		for(int i = 0; i < bulletArray.size(); i++){
+			bulletArray.get(i).move();
+    }
+	}
+
+  private Player getPlayerByPos(int x, int y) {
+    ArrayList<Player> pList = new ArrayList<Player>(this.players.values());
+    for(int i = 0; i < pList.size(); i++) {
+      Player p = pList.get(i);
+
+      if(p.getPosX() == x && p.getPosY() == y) return p;
+    }
+
+    return this.player;
+  }
+
+  private void updatePlayers() {
+    ArrayList<Player> pList = new ArrayList<Player>();
+    for(int i = 0; i < pList.size(); i++) {
+      Player pl = pList.get(i);
+      System.out.println(this.player.getName() + "'s WINDOW:\n" + "Name: " + pl.getName());
+      System.out.println("PUCHA" + (ROW_ADJUST + (pl.getPosX() - this.player.getPosX())) * 50);
+      pl.getWeapon().setX((ROW_ADJUST + (pl.getPosX() - this.player.getPosX())) * 50);
+      pl.getWeapon().setY((COL_ADJUST + (pl.getPosY() - this.player.getPosY())) * 50);
+    }
+  }
+
+  public Player getPlayer() {
+    return this.player;
+  }
+
+  /*================
+    MOUSELISTENERS
+  =================*/
+
+  public void mouseClicked(MouseEvent e) {
+    this.player.shoot2();
+  }
+  public void mouseEntered(MouseEvent e) {}
+  public void mouseExited(MouseEvent e) {}
+  public void mousePressed(MouseEvent e) {}
+  public void mouseReleased(MouseEvent e) {}
 }

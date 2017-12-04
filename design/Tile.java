@@ -1,15 +1,15 @@
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class Tile {
-  private BufferedImage img;
+public class Tile implements Serializable{
+  private transient BufferedImage img;
 
   public Tile(String path) {
     try {
       this.img = ImageIO.read(this.getClass().getResourceAsStream(path));
     } catch(IOException e) {
-      System.out.println("dasda");
     }
   }
 

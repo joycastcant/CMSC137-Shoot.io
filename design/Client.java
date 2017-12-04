@@ -9,14 +9,14 @@ public class Client {
     private ClientSenderThread sender;
     private ClientReceiverThread receiver;
 
-    public Client(String host, String port, int[][] field) throws Exception {
+    public Client(String host, String port, Game game) throws Exception {
         this.host = host;
         this.port = Integer.parseInt(port);
         // this.id = host + "," + port;
 
         DatagramSocket socket = new DatagramSocket();
         this.id = socket.getLocalAddress().toString() + "," + socket.getLocalPort();
-        this.receiver = new ClientReceiverThread(socket, field);
+        this.receiver = new ClientReceiverThread(socket, game);
         this.sender = new ClientSenderThread(socket, this.host, this.port);
     }
 

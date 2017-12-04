@@ -13,14 +13,22 @@ public class MultiThreadChatServerSync {
   public static void main(String args[]) {
 
     int portNumber = 2222;
+    int serverPort = 2221;
     
     if (args.length < 1) {
-      System.out.println("Usage: java MultiThreadChatServerSync <portNumber>\n"
-          + "Now using port number=" + portNumber);
+      System.out.println("Usage: java MultiThreadChatServerSync <portNumber> <serverPort>\n"
+          + "Now using port number=" + portNumber + "and server port = " + serverPort);
     } else {
-      portNumber = Integer.parseInt(args[0]);
+      portNumber = Integer.parseInt(args[0]) + 1;
+      serverPort = Integer.parseInt(args[0]);
       System.out.println("Server Running...\n"
-          + "Now using port number=" + portNumber);
+          + "Now using port number=" + portNumber + "and server port = " + serverPort);
+      try {
+        Server s = new Server(Integer.parseInt(args[0]));
+        s.start();
+      } catch (Exception e) {
+        System.out.println(e);
+      }
     }
 
     try {
